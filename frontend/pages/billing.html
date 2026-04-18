@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billing & Payments â€” Smart Hospital</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <!-- Razorpay Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- â”€â”€ SIDEBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">ðŸ¥</div>
+        <div><div class="brand-name">Smart Hospital</div><div class="brand-sub">AI Healthcare</div></div>
+      </div>
+      <div class="role-pill"><div class="role-dot"></div>Logged in as <strong id="sidebarRole">â€”</strong></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="dashboard.html"    class="nav-item"><span class="nav-icon">ðŸ“Š</span> Dashboard</a>
+        <a href="doctors.html"      class="nav-item"><span class="nav-icon">ðŸ‘¨â€âš•ï¸</span> Doctors</a>
+        <a href="appointments.html" class="nav-item"><span class="nav-icon">ðŸ“…</span> Appointments</a>
+        <a href="records.html"      class="nav-item"><span class="nav-icon">ðŸ“‹</span> Medical Records</a>
+        <div class="nav-section" data-role="admin,doctor">Staff Only</div>
+        <a href="patients.html" class="nav-item" data-role="admin,doctor"><span class="nav-icon">ðŸ‘¥</span> Patients</a>
+        <a href="users.html"    class="nav-item" data-role="admin"><span class="nav-icon">ðŸ›¡ï¸</span> Manage Users</a>
+        <a href="analytics.html" class="nav-item" data-role="admin"><span class="nav-icon">ðŸ“ˆ</span> Analytics</a>
+        <div class="nav-section">Financials</div>
+        <a href="billing.html"  class="nav-item active"><span class="nav-icon">ðŸ’³</span> Bills & Payments</a>
+        <div class="nav-section">AI</div>
+        <a href="voice.html"    class="nav-item"><span class="nav-icon">ðŸŽ¤</span> AI Voice Assistant</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">U</div>
+          <div><div class="sidebar-user-name">Loadingâ€¦</div><div class="sidebar-user-role">â€”</div></div>
+          <button class="logout-btn" title="Logout">â¬…</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- â”€â”€ MAIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div>
+          <div class="topbar-title">Billing & Payments</div>
+          <div class="topbar-subtitle">Manage your medical invoices and secure payments</div>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+           <button class="topbar-icon-btn" id="notifBtn">
+            ðŸ””<span class="notif-dot-badge notif-count" style="display:none">0</span>
+          </button>
+          <div class="topbar-profile" id="userProfileBtn">
+            <div class="topbar-avatar">U</div>
+            <span class="topbar-user-name">User</span>
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="dropdown-header">Logged in</div>
+              <a href="records.html" class="dropdown-item">ðŸ“‹ My Reports</a>
+              <a href="billing.html" class="dropdown-item">ðŸ’³ Bills</a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item text-danger logout-btn w-full text-left" style="width: 100%; text-align: left;">ðŸšª Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Notification Panel -->
+      <div class="notif-panel" id="notifPanel"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Your Invoices</h2>
+            <p>View history and pay pending medical bills securely via Razorpay.</p>
+          </div>
+          <div class="page-header-right hidden" data-role="admin,doctor">
+             <button class="btn btn-primary" onclick="openModal('createBillModal')">+ Create Bill</button>
+          </div>
+        </div>
+
+        <!-- Bill Tabs -->
+        <div class="filters-bar">
+          <button class="filter-btn active" data-filter="all">All Bills</button>
+          <button class="filter-btn" data-filter="pending">Pending</button>
+          <button class="filter-btn" data-filter="paid">Paid</button>
+        </div>
+
+        <!-- Billing Grid -->
+        <div class="billing-grid" id="billingList">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyBills" class="empty hidden">
+          <div class="empty-ico">ðŸ’³</div>
+          <h3>No invoices found</h3>
+          <p>You have no pending or past bills at this time.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Create Bill Modal (Doctor/Admin) -->
+  <div class="modal-overlay" id="createBillModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <div class="modal-title"><div class="modal-title-icon">ðŸ’³</div> Generate New Invoice</div>
+        <button class="modal-close" onclick="closeModal('createBillModal')">âœ–</button>
+      </div>
+      <div class="modal-body">
+        <form id="createBillForm">
+          <div class="form-group">
+            <label class="form-label">Select Patient <span>*</span></label>
+            <select id="billPatient" class="form-control" required>
+              <option value="">Loading patientsâ€¦</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bill Title <span>*</span></label>
+            <input type="text" id="billTitle" class="form-control" placeholder="e.g. General Consultation & Blood Test" required />
+          </div>
+          
+          <div id="billItems">
+             <div class="bill-item-row" style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="text" placeholder="Description" class="form-control item-desc" required />
+                <input type="number" placeholder="Amount" class="form-control item-amt" style="width:120px;" required />
+             </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-secondary" style="margin-bottom:15px;" onclick="addBillItemRow()">+ Add Item</button>
+
+          <div class="form-group">
+            <label class="form-label">Due Date <span>*</span></label>
+            <input type="date" id="billDueDate" class="form-control" required />
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('createBillModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Generate Invoice</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/billing.js"></script>
+</body>
+</html>

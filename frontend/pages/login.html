@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Hospital — Login</title>
+  <meta name="description" content="AI-Powered Smart Hospital Management System — Secure Login & Registration" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <div class="auth-page">
+
+    <!-- ── LEFT: Hero ─────────────────────────────────────────────── -->
+    <div class="auth-hero">
+      <div class="auth-hero-content">
+        <div class="auth-logo">
+          <div class="auth-logo-icon">🏥</div>
+          <div>
+            <div class="auth-logo-name">Smart Hospital</div>
+            <div class="auth-logo-sub">AI-Powered Healthcare</div>
+          </div>
+        </div>
+        <h1 class="auth-tagline">
+          Healthcare, <span>Smarter</span><br/>& Safer.
+        </h1>
+        <p class="auth-desc">
+          A complete hospital management platform with AI-assisted patient care,
+          real-time appointment booking, and intelligent medical record management.
+        </p>
+        <div class="auth-features">
+          <div class="auth-feat"><div class="auth-feat-ico">🤖</div> AI Voice Assistant for patients</div>
+          <div class="auth-feat"><div class="auth-feat-ico">📅</div> Real-time appointment booking</div>
+          <div class="auth-feat"><div class="auth-feat-ico">🗂️</div> Secure medical records storage</div>
+          <div class="auth-feat"><div class="auth-feat-ico">🔔</div> Smart reminders & notifications</div>
+          <div class="auth-feat"><div class="auth-feat-ico">📊</div> Analytics & health dashboards</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Form ─────────────────────────────────────────────── -->
+    <div class="auth-form-side">
+      <div class="auth-form-wrap">
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <div class="auth-tab active" data-tab="login" id="tabLogin">Sign In</div>
+          <div class="auth-tab" data-tab="register" id="tabRegister">Create Account</div>
+        </div>
+
+        <!-- ── LOGIN FORM ── -->
+        <div id="loginForm">
+          <h2 class="auth-title">Welcome back 👋</h2>
+          <p class="auth-sub">Enter your credentials to continue</p>
+
+          <form id="loginFormEl">
+            <div class="form-group">
+              <label class="form-label" for="loginEmail">Email Address <span>*</span></label>
+              <div class="input-icon-wrap">
+                <span class="ico">📧</span>
+                <input id="loginEmail" class="form-control" type="email" placeholder="patient@hospital.com" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="loginPass">Password <span>*</span></label>
+              <div class="password-wrap">
+                <input id="loginPass" class="form-control" type="password" placeholder="Your password" required />
+                <button type="button" class="toggle-pass" onclick="togglePass('loginPass',this)">👁</button>
+              </div>
+            </div>
+            <button type="submit" id="loginSubmitBtn" class="btn btn-primary w-full flex-center p-3">
+              Sign In →
+            </button>
+          </form>
+
+          <p class="auth-footer-text">
+            Don't have an account?
+            <a href="#" onclick="document.getElementById('tabRegister').click()">Create one free</a>
+          </p>
+        </div>
+
+        <!-- ── REGISTER FORM ── -->
+        <div id="registerForm" style="display:none">
+          <h2 class="auth-title">Join SmartHospital 🏥</h2>
+          <p class="auth-sub">Create your account in seconds</p>
+
+          <form id="registerFormEl">
+            <input type="hidden" id="regRole" value="patient" />
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="regName">Full Name <span>*</span></label>
+                <div class="input-icon-wrap">
+                  <span class="ico">👤</span>
+                  <input id="regName" class="form-control" type="text" placeholder="John Doe" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="regEmail">Email <span>*</span></label>
+                <div class="input-icon-wrap">
+                  <span class="ico">📧</span>
+                  <input id="regEmail" class="form-control" type="email" placeholder="john@example.com" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="regPass">Password <span>*</span></label>
+              <div class="password-wrap">
+                <input id="regPass" class="form-control" type="password" placeholder="Min. 6 characters" required />
+                <button type="button" class="toggle-pass" onclick="togglePass('regPass',this)">👁</button>
+              </div>
+            </div>
+
+            <!-- Patient extra fields -->
+            <div id="patientFields" class="extra-fields show">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="regAge">Age</label>
+                  <input id="regAge" class="form-control" type="number" placeholder="28" min="0" max="120" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="regGender">Gender</label>
+                  <select id="regGender" class="form-control">
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full flex-center p-3">
+              Create Account →
+            </button>
+          </form>
+
+          <p class="auth-footer-text">
+            Already have an account?
+            <a href="#" onclick="document.getElementById('tabLogin').click()">Sign In</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script>
+    // Tab switching
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.dataset.tab;
+        document.getElementById('loginForm').style.display    = target === 'login'    ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = target === 'register' ? 'block' : 'none';
+      });
+    });
+
+    // Password toggle
+    function togglePass(id, btn) {
+      const inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+    }
+
+    // Login
+    document.getElementById('loginFormEl').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span> Signing in…`;
+
+      const { ok, data } = await api.post('/auth/login', {
+        email:    document.getElementById('loginEmail').value.trim(),
+        password: document.getElementById('loginPass').value,
+      });
+
+      btn.disabled = false; btn.innerHTML = 'Sign In →';
+
+      if (!ok) { showToast('error', 'Login Failed', data.message); return; }
+
+      api.setToken(data.data.token);
+      api.setUser(data.data.user);
+      showToast('success', 'Welcome back!', data.data.user.name);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 700);
+    });
+
+    // Register
+    document.getElementById('registerFormEl').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('[type=submit]');
+      btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> Creating account…`;
+
+      const role = 'patient';
+      const payload = {
+        name:     document.getElementById('regName').value.trim(),
+        email:    document.getElementById('regEmail').value.trim(),
+        password: document.getElementById('regPass').value,
+        role,
+      };
+      
+      payload.age    = document.getElementById('regAge').value || undefined;
+      payload.gender = document.getElementById('regGender').value || undefined;
+
+      const { ok, data } = await api.post('/auth/register', payload);
+      btn.disabled = false; btn.innerHTML = 'Create Account →';
+
+      if (!ok) { showToast('error', 'Registration Failed', data.message); return; }
+
+      api.setToken(data.data.token);
+      api.setUser(data.data.user);
+      showToast('success', 'Account Created!', `Welcome, ${data.data.user.name}!`);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 700);
+    });
+
+    // Already logged in?
+    if (api.isLoggedIn()) window.location.href = 'dashboard.html';
+
+    // Handle initial tab from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'register') {
+      document.getElementById('tabRegister').click();
+    }
+  </script>
+</body>
+</html>

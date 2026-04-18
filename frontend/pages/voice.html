@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Voice Assistant — SmartHospital</title>
+  <meta name="description" content="AI-powered voice assistant for patient interaction at SmartHospital" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- ── SIDEBAR ─────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">🏥</div>
+        <div><div class="brand-name">SmartHospital</div><div class="brand-sub">AI Healthcare</div></div>
+      </div>
+      <div class="role-pill"><div class="role-dot"></div>Logged in as <strong id="sidebarRole">—</strong></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="dashboard.html"    class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+        <a href="doctors.html"      class="nav-item"><span class="nav-icon">👨‍⚕️</span> Doctors</a>
+        <a href="appointments.html" class="nav-item"><span class="nav-icon">📅</span> Appointments</a>
+        <a href="records.html"      class="nav-item"><span class="nav-icon">📋</span> Medical Records</a>
+        <div class="nav-section" data-role="admin,doctor">Staff Only</div>
+        <a href="patients.html" class="nav-item" data-role="admin,doctor"><span class="nav-icon">👥</span> Patients</a>
+        <a href="users.html"    class="nav-item" data-role="admin"><span class="nav-icon">🛡️</span> Manage Users</a>
+        <a href="analytics.html" class="nav-item" data-role="admin"><span class="nav-icon">📈</span> Analytics</a>
+        <div class="nav-section">AI</div>
+        <a href="voice.html" class="nav-item active"><span class="nav-icon">🎤</span> AI Voice Assistant</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">U</div>
+          <div>
+            <div class="sidebar-user-name">Loading…</div>
+            <div class="sidebar-user-role">—</div>
+          </div>
+          <button class="logout-btn" title="Logout">⬅</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── MAIN ─────────────────────────────────────── -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div>
+          <div class="topbar-title">AI Voice Assistant</div>
+          <div class="topbar-subtitle">Let AI guide you through your healthcare</div>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <button class="topbar-icon-btn" id="notifBtn">
+            🔔<span class="notif-dot-badge notif-count" style="display:none">0</span>
+          </button>
+          <div class="topbar-profile" id="userProfileBtn">
+            <div class="topbar-avatar">U</div>
+            <span class="topbar-user-name">User</span>
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="dropdown-header">
+                Logged in
+              </div>
+              <a href="records.html" class="dropdown-item">📋 My Reports</a>
+              <a href="records.html" class="dropdown-item">💳 Bills</a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item text-danger logout-btn w-full text-left" style="width: 100%; text-align: left;">🚪 Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Notification Panel -->
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-panel-head">
+          <div class="notif-panel-title">🔔 Notifications</div>
+          <span class="mark-all">Mark all read</span>
+        </div>
+        <div class="notif-list"></div>
+      </div>
+
+      <main class="page-content">
+        <div class="voice-page">
+
+          <!-- Voice Hero -->
+          <div class="voice-hero">
+            <div style="position:relative;z-index:1">
+              <div class="voice-hero-title">🤖 MediAI Assistant</div>
+              <div class="voice-hero-sub">I'm here to guide your healthcare journey — book visits, check availability, or view doctor-prescribed courses.</div>
+              <div class="mic-btn" id="micBtn" onclick="toggleVoice()" style="cursor:pointer;" title="Click to speak">🎤</div>
+              <div class="mic-label" id="micLabel" onclick="toggleVoice()" style="cursor:pointer;">Tap to speak</div>
+              <div class="voice-status" id="voiceStatus">Browser Voice API Ready</div>
+            </div>
+          </div>
+
+          <!-- Chat Window -->
+          <div class="chat-container">
+            <div class="chat-header">
+              <div class="chat-header-icon">🤖</div>
+              <div>
+                <div class="chat-header-name">MediAI Assistant</div>
+                <div class="chat-header-status">● Online — powered by AI</div>
+              </div>
+            </div>
+
+            <!-- Quick intent chips -->
+            <div class="intent-chips">
+              <span class="chip" onclick="sendMessage('Book an appointment')">📅 Book Appointment</span>
+              <span class="chip" onclick="sendMessage('Show my records')">📋 My Records</span>
+              <span class="chip" onclick="sendMessage('Find a cardiologist')">🔍 Find Doctor</span>
+              <span class="chip" onclick="sendMessage('Check my appointments')">📆 My Appointments</span>
+              <span class="chip" onclick="sendMessage('I have a fever, what should I do?')">🤒 Symptom Help</span>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+              <!-- Welcome message -->
+            </div>
+
+            <div class="chat-input-wrap">
+              <input type="text" id="chatInput" class="chat-input"
+                placeholder="Type your question or click the mic…"
+                onkeydown="if(event.key==='Enter') sendMessage()" />
+              <div class="send-btn" onclick="sendMessage()" title="Send">➤</div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/ai.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    requireAuth();
+    initSidebar();
+    initNotifPanel();
+    loadNotifBadge();
+
+    // Welcome message
+    addBotMessage("👋 Hello! I'm **MediAI**, your personal healthcare assistant. How can I help you today?\n\nYou can ask me to:\n• 📅 Book an appointment\n• 🔍 Find a doctor by specialty\n• 📋 View your medical records\n• 💊 Get health advice");
+  });
+
+  // ── Voice Recognition (Deepgram) ─────────────────────────────────────────────
+  let isListening = false;
+
+  async function toggleVoice() {
+    const statusEl = document.getElementById('voiceStatus');
+    
+    if (isListening) {
+      voiceAssistant.stopRecording();
+      setListeningState(false);
+    } else {
+      statusEl.textContent = 'Connecting to MediAI Voice…';
+      try {
+        await voiceAssistant.startRecording(
+          (transcript) => {
+            document.getElementById('chatInput').value = transcript;
+            sendMessage(transcript);
+          },
+          (err) => {
+            console.error('Voice Error:', err);
+            statusEl.textContent = 'Voice Error or Unsupported Browser.';
+            setListeningState(false);
+            showToast('error', 'Voice Error', 'Please ensure you are using Chrome or Edge and have granted microphone access.');
+          }
+        );
+        isListening = true;
+        setListeningState(true);
+      } catch (err) {
+        statusEl.textContent = 'Initialization failed.';
+        setListeningState(false);
+      }
+    }
+  }
+
+  function setListeningState(active) {
+    isListening = active;
+    const btn   = document.getElementById('micBtn');
+    const label = document.getElementById('micLabel');
+    const status= document.getElementById('voiceStatus');
+    if (!btn || !label || !status) return;
+
+    btn.classList.toggle('active', active);
+    label.textContent  = active ? '🔴 Recording… tap to stop' : 'Tap to speak';
+    if (!active && !status.textContent.includes('Error')) {
+      status.textContent = 'Powered by MediAI Assistant';
+    }
+  }
+
+  // ── Chat ──────────────────────────────────────────────────────────────────────
+  async function sendMessage(text) {
+    const input = document.getElementById('chatInput');
+    const msg   = (text || input.value).trim();
+    if (!msg) return;
+    input.value = '';
+
+    addUserMessage(msg);
+    const thinkId = addTypingIndicator();
+
+    try {
+      const { ok, data } = await api.post('/ai/chat', { message: msg });
+      removeTypingIndicator(thinkId);
+
+      if (ok && data.data?.reply) {
+        addBotMessage(data.data.reply);
+        speak(data.data.reply.replace(/[*#_~`]/g, ''));
+        // Handle intent actions
+        if (data.data.intent === 'BOOK_APPOINTMENT') {
+          setTimeout(() => window.location.href = 'appointments.html', 1800);
+        }
+      } else {
+        // Fallback: simple local intent recognition if API not configured
+        handleLocalIntent(msg);
+      }
+    } catch {
+      removeTypingIndicator(thinkId);
+      handleLocalIntent(msg);
+    }
+  }
+
+  // Local intent handler (works without OpenAI key)
+  function handleLocalIntent(msg) {
+    const lower = msg.toLowerCase();
+    let reply = '';
+
+    if (/book|appointment|schedule|visit/.test(lower)) {
+      reply = "I'll guide you through the booking process! 📅 I'm opening the appointments portal where you can see doctor availability and pick a slot that works for you.";
+      setTimeout(() => window.location.href = 'appointments.html', 2200);
+    } else if (/record|report|xray|prescription|ecg|course|remedy|medicine/.test(lower)) {
+      reply = "I can only suggest remedies or courses that have been officially prescribed by your doctor 📋. Let me open your Medical Records so you can review your active prescriptions and doctor's notes.";
+      setTimeout(() => window.location.href = 'records.html', 2200);
+    } else if (/doctor|specialist|available|cardio|neuro|ortho/.test(lower)) {
+      reply = "I'll show you our team of specialists and their current availability 👨‍⚕️. You can browse by department and find the right doctor for your needs.";
+      setTimeout(() => window.location.href = 'doctors.html', 2200);
+    } else if (/fever|cold|pain|sick|symptom/.test(lower)) {
+      reply = "It sounds like you're feeling unwell 🤒. To ensure your safety, I recommend **booking a consultation** with a specialist rather than self-medicating. I can help you find an available doctor immediately.\n\nWould you like to see available slots for today?";
+    } else if (/hello|hi|hey|good/.test(lower)) {
+      reply = "Hello! 👋 I'm MediAI. I can help you guide your appointments, check doctor availability, or set reminders for your prescribed medicine. How can I assist you today?";
+    } else if (/reminder|time/.test(lower)) {
+      reply = "I can help you stay on track! 🔔 You can view your visit reminders in the notification panel above. For medicine schedules, please check your active prescriptions in the Medical Records section.";
+    } else {
+      reply = "I'm here to guide you 🏥. You can ask me to:\n• 📅 **Book a visit**\n• 👨‍⚕️ **Find available doctors**\n• 📋 **Review doctor-prescribed courses**\n• 🔔 **Check visit reminders**";
+    }
+
+    addBotMessage(reply);
+    speak(reply.replace(/[*#_~`•]/g, '').substring(0, 200));
+  }
+
+  // ── Speech Synthesis (Deepgram Relay) ──────────────────────────────────────────
+  function speak(text) {
+    voiceAssistant.speak(text);
+  }
+
+  // ── Message Renderers ─────────────────────────────────────────────────────────
+  function addUserMessage(text) {
+    const user = api.getUser();
+    const initials = (user?.name || 'U').split(' ').map(w=>w[0]).join('').slice(0,2);
+    appendMessage('user', text, initials);
+  }
+
+  function addBotMessage(text) {
+    // Simple markdown → HTML
+    const html = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    appendMessage('bot', html, '🤖');
+  }
+
+  function appendMessage(role, content, avatar) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    const time = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    div.innerHTML = `
+      <div class="msg-avatar">${avatar}</div>
+      <div>
+        <div class="msg-bubble">${content}</div>
+        <div class="msg-time">${time}</div>
+      </div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
+  }
+
+  function addTypingIndicator() {
+    const container = document.getElementById('chatMessages');
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'msg bot'; div.id = id;
+    div.innerHTML = `
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-bubble">
+        <div class="typing"><span></span><span></span><span></span></div>
+      </div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+  }
+
+  function removeTypingIndicator(id) {
+    document.getElementById(id)?.remove();
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Hospital — AI-Powered Healthcare</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2563EB" />
+  <meta name="description" content="Welcome to Smart Hospital, where advanced AI meets compassionate healthcare. Experience the future of medical diagnostics and patient care." />
+  <!-- Added version query to force CSS refresh -->
+  <link rel="stylesheet" href="/assets/css/style.css?v=2.0.7" />
+  <style>
+    /* ── LANDING FAIL-SAFE STYLES ── */
+    :root {
+      --l-bg: #FFFFFF;
+      --l-text: #1E293B;
+      --l-primary: #2563EB;
+      --l-primary-gradient: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+      --l-glass: rgba(255, 255, 255, 0.85);
+      --l-glass-border: rgba(255, 255, 255, 0.2);
+    }
+    
+    body.landing-page { background: var(--l-bg) !important; margin: 0; padding: 0; color: var(--l-text); overflow-x: hidden; }
+    
+    .landing-nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 85px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 8%; z-index: 1000; transition: 0.3s ease;
+      background: transparent;
+    }
+    .landing-nav.scrolled {
+      background: var(--l-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      height: 70px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    }
+    
+    .landing-brand-wrap { display: flex; align-items: center; gap: 14px; }
+    .landing-brand-icon { 
+      width: 48px; height: 48px; background: var(--l-primary-gradient); 
+      color: #FFF; display: flex; align-items: center; justify-content: center; 
+      border-radius: 14px; font-size: 1.6rem; box-shadow: 0 8px 16px -4px rgba(37,99,235,0.3);
+    }
+    .landing-brand-name { font-weight: 800; font-size: 1.4rem; color: var(--l-text); letter-spacing: -0.02em; }
+    .landing-brand-sub { font-size: 0.75rem; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: -2px; }
+    
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-link { text-decoration: none; color: var(--l-text); font-weight: 600; font-size: 1rem; opacity: 0.8; transition: 0.2s; }
+    .nav-link:hover { opacity: 1; color: var(--l-primary); }
+    
+    .landing-hero {
+      position: relative; height: 100vh; min-height: 700px; 
+      display: flex; align-items: center; justify-content: center;
+      background: #0F172A url('/assets/images/hero.png') no-repeat center center;
+      background-size: cover;
+      text-align: center; color: #FFF; overflow: hidden;
+    }
+    .hero-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(180deg, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.7) 100%); z-index:2; }
+    .hero-content { position: relative; z-index: 10; max-width: 900px; padding: 40px; }
+    
+    .hero-title { font-size: 5rem; font-weight: 900; line-height: 1.05; margin-bottom: 24px; letter-spacing: -0.04em; }
+    .text-gradient { background: var(--l-primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-subtitle { font-size: 1.4rem; color: rgba(255,255,255,0.9); margin-bottom: 40px; line-height: 1.6; max-width: 750px; margin-left: auto; margin-right: auto; }
+    
+    .landing-section { padding: 120px 8%; }
+    .section-tag { display: inline-block; padding: 6px 16px; border-radius: 100px; background: #EFF6FF; color: var(--l-primary); font-size: 0.85rem; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .specialty-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 60px; }
+    .spec-card { position: relative; border-radius: 24px; overflow: hidden; height: 460px; transition: 0.4s ease; border: 1px solid var(--l-glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    .spec-card:hover { transform: translateY(-12px); box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+    .spec-card-img { width: 100%; height: 100%; background-size: cover; background-position: center; transition: 0.6s ease; }
+    .spec-card:hover .spec-card-img { transform: scale(1.1); }
+    .spec-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(15,23,42,0.95) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px; color: #FFF; }
+    .spec-card-overlay h3 { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; }
+    
+    .landing-footer { background: #F8FAFC; padding: 100px 8% 40px; border-top: 1px solid #E2E8F0; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 80px; }
+    .footer-brand h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 20px; }
+    .footer-col h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; }
+    .footer-links { display: flex; flex-direction: column; gap: 12px; }
+    .footer-link { text-decoration: none; color: #64748B; transition: 0.2s; }
+    .footer-link:hover { color: var(--l-primary); }
+    
+    @media (max-width: 1024px) { 
+      .hero-title { font-size: 4rem; } 
+      .specialty-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .landing-nav .nav-links { display: none; }
+      .hero-title { font-size: 3rem; }
+      .specialty-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="landing-page">
+
+  <!-- ── NAVIGATION ── -->
+  <nav class="landing-nav" id="mainNav">
+    <div class="landing-brand-wrap">
+      <div class="landing-brand-icon">🏥</div>
+      <div class="landing-brand-text">
+        <div class="landing-brand-name">Smart Hospital</div>
+        <div class="landing-brand-sub">Elite AI Healthcare</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="#specialties" class="nav-link">Specialties</a>
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#about" class="nav-link">About Us</a>
+      <a href="pages/login.html" class="nav-link">Login</a>
+      <a href="pages/login.html?tab=register" class="btn btn-primary btn-sm btn-landing-cta">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO SECTION ── -->
+  <header class="landing-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="section-tag hero-tag">The Future of Care</div>
+      <h1 class="hero-title">Compassionate Care<br/><span class="text-gradient">Powered by AI.</span></h1>
+      <p class="hero-subtitle">
+        Smart Hospital bridges the gap between cutting-edge technology and human empathy. 
+        Experience a safer, faster, and more intelligent healthcare journey.
+      </p>
+      <div class="hero-btns">
+        <a href="pages/login.html" class="btn btn-primary btn-lg">Book an Appointment</a>
+        <a href="#features" class="btn btn-secondary btn-lg btn-outline-white glass-btn">Learn More</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── FEATURES SECTION ── -->
+  <section class="section landing-section" id="features" style="background: #FAFBFF">
+    <div class="section-center">
+      <div class="section-tag">High-Tech Facilities</div>
+      <h2>Intelligent Patient Experience</h2>
+      <p>Our platform leverages state-of-the-art AI to ensure your medical data is handled with precision and your care is proactive.</p>
+    </div>
+
+    <div class="feature-list landing-feature-grid">
+      <div class="feat-item glass-card card-hover-pill">
+        <div class="feat-icon pulse-blue">🎙️</div>
+        <h4>AI Voice Assistant</h4>
+        <p>Book appointments, check symptoms, and get health tips simply by talking to our smart AI assistant.</p>
+      </div>
+      <div class="feat-item glass-card card-hover-pill">
+        <div class="feat-icon pulse-cyan">📊</div>
+        <h4>Smart Analytics</h4>
+        <p>Personalized health dashboards that visualize your progress and alert you to potential risks early.</p>
+      </div>
+      <div class="feat-item glass-card card-hover-pill">
+        <div class="feat-icon pulse-green">🛡️</div>
+        <h4>Secure Digital Records</h4>
+        <p>Encrypted, blockchain-ready storage for all your medical history, prescriptions, and lab reports.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SPECIALTIES SECTION ── -->
+  <section class="section landing-section" id="specialties">
+    <div class="section-center">
+      <div class="section-tag">Medical Expertise</div>
+      <h2>Our Core Specialties</h2>
+      <p>We combine centuries of medical experience with modern algorithmic precision to offer unmatched care in critical fields.</p>
+    </div>
+
+    <div class="specialty-grid">
+      <!-- Cardiology -->
+      <div class="spec-card">
+        <div class="spec-card-img" style="background-image: url('/assets/images/spec_cardiology_1776452657807.png')"></div>
+        <div class="spec-card-overlay">
+          <h3>Advanced Cardiology</h3>
+          <p>Utilizing high-frequency AI monitoring for real-time heart health diagnostics and preventive care plans.</p>
+        </div>
+      </div>
+      <!-- Neurology -->
+      <div class="spec-card">
+        <div class="spec-card-img" style="background-image: url('/assets/images/spec_neurology_1776452959322.png')"></div>
+        <div class="spec-card-overlay">
+          <h3>Precision Neurology</h3>
+          <p>Pioneering neuro-mapping and AI-assisted analysis for complex brain health and spinal conditions.</p>
+        </div>
+      </div>
+      <!-- Diagnostics -->
+      <div class="spec-card">
+        <div class="spec-card-img" style="background-image: url('/assets/images/spec_diagnostics_1776452982374.png')"></div>
+        <div class="spec-card-overlay">
+          <h3>General Diagnostics</h3>
+          <p>Comprehensive health checkups powered by intelligent lab insights and digital imaging excellence.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TEAM SECTION ── -->
+  <section class="section landing-section" id="team" style="background: #FAFBFF">
+    <div class="team-header-flex">
+      <div style="max-width:600px">
+        <div class="section-tag">Expert Team</div>
+        <h2>Meet Our World-Class Practitioners</h2>
+        <p>Our board-certified medical professionals are unified by a single goal: delivering the highest quality patient outcomes.</p>
+      </div>
+      <a href="pages/login.html" class="btn btn-secondary btn-outline">View All Doctors</a>
+    </div>
+
+    <div class="specialty-grid team-grid">
+      <div class="feat-item team-feat-shot">
+        <img src="/assets/images/team.png" alt="Doctors" class="team-hero-img">
+        <div class="team-feat-content">
+          <h4>Expert Practitioners</h4>
+          <p>Over 150+ board-certified specialists ready to provide empathetic care.</p>
+        </div>
+      </div>
+      <div class="feat-item quote-item">
+          <div class="quote-mark">"</div>
+          <p class="quote-text">
+            "Combining human intuition with AI precision allows us to catch conditions earlier than ever before. It's truly a new era of medicine."
+          </p>
+          <div class="quote-author">
+            <div class="author-avatar-placeholder"></div>
+            <div>
+              <div class="author-name">Dr. Sarah Mitchell</div>
+              <div class="author-title">Chief of Innovations</div>
+            </div>
+          </div>
+      </div>
+      <div class="feat-item join-cta-item">
+        <div class="feat-icon centered-icon">👨‍⚕️</div>
+        <h4>Join Our Global Network</h4>
+        <p>Are you a medical professional looking to transform healthcare with AI?</p>
+        <a href="pages/login.html?tab=register" class="btn btn-sm btn-primary">Partner With Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT SECTION ── -->
+  <section class="section landing-section" id="about" style="background:var(--bg)">
+    <div class="about-grid">
+      <div class="about-text-side">
+        <div class="section-tag">About Smart Hospital</div>
+        <h2>Where Humanity Meets Technology</h2>
+        <p>
+          Founded in 2026, Smart Hospital was born from a vision to make healthcare accessible, transparent, and accurate. 
+          We reduce human error and free up our doctors to focus on what matters most: You.
+        </p>
+        <ul class="check-list">
+          <li><span>✔</span> Top-tier Board Certified Practitioners</li>
+          <li><span>✔</span> 24/7 AI-Assisted Remote Monitoring</li>
+          <li><span>✔</span> Seamless Health Portal Integration</li>
+        </ul>
+        <a href="pages/login.html" class="btn btn-primary">Join the Community</a>
+      </div>
+      <div class="about-img-side">
+         <img src="/assets/images/hero.png" alt="Hospital Building" class="about-main-img">
+         <div class="glass-card stat-card">
+            <h3 class="stat-num">99%</h3>
+            <p class="stat-desc">Diagnostic Accuracy with AI Support</p>
+         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="landing-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h2>Smart Hospital</h2>
+        <p>Developing the next generation of healthcare platforms for a smarter, healthier tomorrow.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <div class="footer-links">
+          <a href="#" class="footer-link">AI Voice Search</a>
+          <a href="#" class="footer-link">Online Consultations</a>
+          <a href="#" class="footer-link">Medical Record Sync</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Hospital</h4>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Our Doctors</a>
+          <a href="#" class="footer-link">Specialties</a>
+          <a href="#" class="footer-link">Contact Us</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Trust</h4>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Privacy Policy</a>
+          <a href="#" class="footer-link">Term of Care</a>
+          <a href="#" class="footer-link">Data Security</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Smart Hospital AI. All rights reserved.</p>
+      <div class="social-links">
+        <a href="#" class="footer-link">Twitter</a>
+        <a href="#" class="footer-link">LinkedIn</a>
+        <a href="#" class="footer-link">Instagram</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/api.js"></script>
+  <script>
+    // ── CACHE & VERSION CONTROL ──
+    const SH_VERSION = '2.0.1';
+    if (localStorage.getItem('sh_ui_version') !== SH_VERSION) {
+      localStorage.setItem('sh_ui_version', SH_VERSION);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for(let registration of registrations) { registration.unregister(); }
+          window.location.reload(true);
+        });
+      }
+    }
+
+    // Handle Navbar Scroll
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) { nav.classList.add('scrolled'); } 
+      else { nav.classList.remove('scrolled'); }
+    });
+  </script>
+</body>
+</html>

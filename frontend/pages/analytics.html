@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — SmartHospital</title>
+  <meta name="description" content="Real-time analytics dashboard for SmartHospital administrators" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+</head>
+<body>
+  <div class="layout">
+
+    <!-- ── SIDEBAR ─────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">🏥</div>
+        <div><div class="brand-name">SmartHospital</div><div class="brand-sub">AI Healthcare</div></div>
+      </div>
+      <div class="role-pill"><div class="role-dot"></div>Logged in as <strong id="sidebarRole">—</strong></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="dashboard.html"    class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+        <a href="doctors.html"      class="nav-item"><span class="nav-icon">👨‍⚕️</span> Doctors</a>
+        <a href="appointments.html" class="nav-item"><span class="nav-icon">📅</span> Appointments</a>
+        <a href="records.html"      class="nav-item"><span class="nav-icon">📋</span> Medical Records</a>
+        <div class="nav-section" data-role="admin,doctor">Staff Only</div>
+        <a href="patients.html"  class="nav-item" data-role="admin,doctor"><span class="nav-icon">👥</span> Patients</a>
+        <a href="users.html"     class="nav-item" data-role="admin"><span class="nav-icon">🛡️</span> Manage Users</a>
+        <a href="analytics.html" class="nav-item active" data-role="admin"><span class="nav-icon">📈</span> Analytics</a>
+        <div class="nav-section">AI</div>
+        <a href="voice.html" class="nav-item"><span class="nav-icon">🎤</span> AI Voice Assistant</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">U</div>
+          <div>
+            <div class="sidebar-user-name">Loading…</div>
+            <div class="sidebar-user-role">—</div>
+          </div>
+          <button class="logout-btn" title="Logout">⬅</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── MAIN ─────────────────────────────────────── -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div>
+          <div class="topbar-title">Analytics</div>
+          <div class="topbar-subtitle">Real-time hospital performance &amp; insights</div>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <button class="topbar-icon-btn" id="notifBtn">
+            🔔<span class="notif-dot-badge notif-count" style="display:none">0</span>
+          </button>
+          <div class="topbar-profile" id="userProfileBtn">
+            <div class="topbar-avatar">U</div>
+            <span class="topbar-user-name">User</span>
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="dropdown-header">Logged in</div>
+              <a href="records.html" class="dropdown-item">📋 My Reports</a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item text-danger logout-btn" style="width:100%;text-align:left">🚪 Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Notification Panel -->
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-panel-head">
+          <div class="notif-panel-title">🔔 Notifications</div>
+          <span class="mark-all">Mark all read</span>
+        </div>
+        <div class="notif-list"></div>
+      </div>
+
+      <main class="page-content analytics">
+        <div class="page-header animate-fly-in">
+          <div class="page-header-left">
+            <h2>Hospital Analytics</h2>
+            <p>Real-time performance metrics &amp; insights</p>
+          </div>
+        </div>
+
+        <!-- ── TREND SPARKLINE ────────────────────────── -->
+        <div class="chart-card glass-card mb-4 animate-fly-in" style="padding: 18px 26px;">
+          <div class="flex-between mb-4">
+            <div class="chart-title" style="margin-bottom:0">📈 Patient Inflow Growth</div>
+            <div class="stat-trend">↑ 12.4% vs last month</div>
+          </div>
+          <svg class="trend-svg" viewBox="0 0 1000 60">
+            <polyline class="trend-path" id="trendPath" points="0,50 150,45 300,55 450,20 600,35 750,10 900,25 1000,5"/>
+          </svg>
+        </div>
+
+        <!-- ── KPI CARDS ─────────────────────────────── -->
+        <div class="kpi-grid animate-fly-in">
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#2563EB">
+            <div class="kpi-emoji">👥</div>
+            <div class="kpi-val" id="kpiPatients">0</div>
+            <div class="kpi-lbl">Total Patients</div>
+          </div>
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#8B5CF6">
+            <div class="kpi-emoji">👨‍⚕️</div>
+            <div class="kpi-val" id="kpiDoctors">0</div>
+            <div class="kpi-lbl">Active Doctors</div>
+          </div>
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#0EA5E9">
+            <div class="kpi-emoji">📅</div>
+            <div class="kpi-val" id="kpiApts">0</div>
+            <div class="kpi-lbl">Appointments</div>
+          </div>
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#10B981">
+            <div class="kpi-emoji">✅</div>
+            <div class="kpi-val" id="kpiCompleted">0</div>
+            <div class="kpi-lbl">Completed</div>
+          </div>
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#F59E0B">
+            <div class="kpi-emoji">⏳</div>
+            <div class="kpi-val" id="kpiPending">0</div>
+            <div class="kpi-lbl">Pending Review</div>
+          </div>
+        </div>
+
+        <!-- ── CHARTS GRID ────────────────────────────── -->
+        <div class="analytics-grid animate-fly-in">
+
+          <!-- Bar Chart: appointments per month -->
+          <div class="chart-card glass-card">
+            <div class="chart-title">📈 Appointments (6 Months)</div>
+            <div class="bar-chart" id="barChart">
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- SVG Donut: appointment status -->
+          <div class="chart-card glass-card">
+            <div class="chart-title">📊 Appointment Status</div>
+            <div class="donut-wrap">
+              <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="54" fill="none" stroke="var(--border-light)" stroke-width="20"/>
+                <circle id="ringCompleted" cx="70" cy="70" r="54" fill="none" stroke="#2563EB" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
+                <circle id="ringConfirmed" cx="70" cy="70" r="54" fill="none" stroke="#10B981" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
+                <circle id="ringPending" cx="70" cy="70" r="54" fill="none" stroke="#F59E0B" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
+                <circle id="ringCancelled" cx="70" cy="70" r="54" fill="none" stroke="#EF4444" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
+                <text x="70" y="65" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text)" id="donutTotal">0</text>
+                <text x="70" y="82" text-anchor="middle" font-size="11" fill="var(--text-muted)">Total</text>
+              </svg>
+              <div class="donut-legend">
+                <div class="legend-row">
+                  <div class="legend-dot" style="background:#2563EB"></div>
+                  <span class="legend-label">Completed</span>
+                  <span class="legend-val" id="lgComp">0</span>
+                  <span class="legend-pct" id="lgCompPct"></span>
+                </div>
+                <div class="legend-row">
+                  <div class="legend-dot" style="background:#10B981"></div>
+                  <span class="legend-label">Confirmed</span>
+                  <span class="legend-val" id="lgConf">0</span>
+                  <span class="legend-pct" id="lgConfPct"></span>
+                </div>
+                <div class="legend-row">
+                  <div class="legend-dot" style="background:#F59E0B"></div>
+                  <span class="legend-label">Pending</span>
+                  <span class="legend-val" id="lgPend">0</span>
+                  <span class="legend-pct" id="lgPendPct"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card span-2 glass-card">
+            <div class="chart-title">🩺 Staff Expertise Distribution</div>
+            <div class="spec-list" id="specList">
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- AI INSIGHTS -->
+          <div class="chart-card span-2 glass-card insights-card animate-fly-in">
+            <div class="chart-title"><span class="chart-icon">🤖</span> MediAI Pulse Insights</div>
+            <div id="aiInsights" class="insights-body">
+              <div class="insight-shimmer">
+                <div class="skeleton" style="height:20px; width:90%; margin-bottom:12px"></div>
+                <div class="skeleton" style="height:20px; width:70%; margin-bottom:12px"></div>
+                <div class="skeleton" style="height:20px; width:85%"></div>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-secondary" style="margin-top:15px;" onclick="refreshInsights()">↻ Refresh Insights</button>
+          </div>
+
+        </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script>
+    const CIRC = 2 * Math.PI * 54; // ≈ 339.3
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireAuth();
+      initSidebar();
+      await initNotifPanel();
+      await loadNotifBadge();
+
+      const user = api.getUser();
+      if (user?.role !== 'admin') {
+        document.querySelector('.page-content').innerHTML = `
+          <div class="empty" style="padding:80px 20px">
+            <div class="empty-ico">🔒</div>
+            <h3>Access Denied</h3>
+            <p>Only administrators can view analytics.</p>
+          </div>`;
+        return;
+      }
+
+      await loadAnalytics();
+      await generateAIInsights();
+    });
+
+    async function generateAIInsights() {
+      const insightEl = document.getElementById('aiInsights');
+      if (!insightEl) return;
+      
+      const p = document.getElementById('kpiPatients').textContent;
+      const a = document.getElementById('kpiApts').textContent;
+      const d = document.getElementById('kpiDoctors').textContent;
+
+      const prompt = `As an AI hospital manager, provide 3-4 concise, professional insights for a dashboard showing ${p} patients, ${a} appointments, and ${d} doctors. Focus on operational efficiency and patient care quality. Keep it to 100 words max.`;
+      
+      try {
+        const { ok, data } = await api.post('/ai/chat', { message: prompt });
+        if (ok && data.data?.reply) {
+          insightEl.innerHTML = `
+            <div class="insight-content">
+              <div class="insight-icon">✨</div>
+              <div class="insight-text">${data.data.reply.replace(/\n/g, '<br>')}</div>
+            </div>
+          `;
+        } else {
+          insightEl.innerHTML = '<p class="text-muted">AI insights temporarily unavailable.</p>';
+        }
+      } catch (e) {
+        insightEl.innerHTML = '<p class="text-muted">AI insights temporarily unavailable.</p>';
+      }
+    }
+
+    async function refreshInsights() {
+      const insightEl = document.getElementById('aiInsights');
+      insightEl.innerHTML = '<div class="insight-shimmer"><div class="skeleton" style="height:20px; width:90%; margin-bottom:12px"></div><div class="skeleton" style="height:20px; width:70%"></div></div>';
+      await generateAIInsights();
+    }
+
+    async function loadAnalytics() {
+      const [patRes, aptRes, docRes] = await Promise.all([
+        api.get('/patients'),
+        api.get('/appointments'),
+        api.get('/doctors'),
+      ]);
+
+      const patients     = patRes.ok ? (patRes.data.data || [])  : [];
+      const appointments = aptRes.ok ? (aptRes.data.data || [])  : [];
+      const doctors      = docRes.ok ? (docRes.data.data || [])  : [];
+
+      const completed = appointments.filter(a => a.status === 'completed').length;
+      const confirmed = appointments.filter(a => a.status === 'confirmed').length;
+      const pending   = appointments.filter(a => a.status === 'pending').length;
+      const cancelled = appointments.filter(a => a.status === 'cancelled').length;
+      const total     = appointments.length;
+
+      // ── KPIs (Animated Count-up) ──────────────────────────
+      animateNumber('kpiPatients',  patients.length);
+      animateNumber('kpiDoctors',   doctors.length);
+      animateNumber('kpiApts',      total);
+      animateNumber('kpiCompleted', completed);
+      animateNumber('kpiPending',   pending);
+
+      // ── Trendline Calculation ─────────────────────────────
+      calculateTrend(appointments);
+
+      // ── Bar Chart ─────────────────────────────────────────
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const counts = new Array(12).fill(0);
+      appointments.forEach(a => {
+        const date = a.createdAt || a.date;
+        const m = date ? new Date(date).getMonth() : -1;
+        if (m !== -1) counts[m]++;
+      });
+      const nowMonth = new Date().getMonth();
+      const barData = [];
+      for (let i = 5; i >= 0; i--) {
+        const idx = (nowMonth - i + 12) % 12;
+        barData.push({ label: monthNames[idx], val: counts[idx] });
+      }
+      const maxVal = Math.max(...barData.map(d => d.val), 1);
+      const barColors = ['bg-grad-blue','bg-grad-green','bg-grad-purple','bg-grad-amber','bg-grad-pink','bg-grad-teal'];
+
+      document.getElementById('barChart').innerHTML = barData.map((d, i) => `
+        <div class="bar-col">
+          <div class="bar-val">${d.val}</div>
+          <div class="bar ${barColors[i]}" style="height:${Math.max(4, Math.round(d.val / maxVal * 100))}%"></div>
+          <div class="bar-label">${d.label}</div>
+        </div>`).join('');
+
+      // ── Donut ─────────────────────────────────────────────
+      animateNumber('donutTotal', total);
+
+      if (total > 0) {
+        const segments = [
+          { id: 'ringCompleted', count: completed },
+          { id: 'ringConfirmed', count: confirmed },
+          { id: 'ringPending',   count: pending   },
+          { id: 'ringCancelled', count: cancelled },
+        ];
+        let cumulative = 0;
+        segments.forEach(seg => {
+          const arc    = (seg.count / total) * CIRC;
+          const offset = -cumulative;
+          const el     = document.getElementById(seg.id);
+          if (el) {
+            el.style.strokeDasharray  = `${arc} ${CIRC - arc}`;
+            el.style.strokeDashoffset = offset;
+          }
+          cumulative += arc;
+        });
+      }
+
+      const pctStr = n => total > 0 ? ` (${Math.round(n / total * 100)}%)` : '';
+      document.getElementById('lgComp').textContent = completed;  document.getElementById('lgCompPct').textContent = pctStr(completed);
+      document.getElementById('lgConf').textContent = confirmed;  document.getElementById('lgConfPct').textContent = pctStr(confirmed);
+      document.getElementById('lgPend').textContent = pending;    document.getElementById('lgPendPct').textContent = pctStr(pending);
+
+      // ── Specialty Distribution ─────────────────────────────
+      const specMap = {};
+      doctors.forEach(d => {
+        const s = d.specialization || 'General Medicine';
+        specMap[s] = (specMap[s] || 0) + 1;
+      });
+      const specEntries = Object.entries(specMap).sort((a, b) => b[1] - a[1]);
+      const maxSpec     = Math.max(...specEntries.map(e => e[1]), 1);
+      const specColors  = ['#2563EB','#10B981','#8B5CF6','#F59E0B','#EC4899','#0D9488'];
+
+      document.getElementById('specList').innerHTML = specEntries.length
+        ? specEntries.map(([name, count], i) => `
+            <div class="spec-row">
+              <div class="spec-meta">
+                <span class="spec-name">🩺 ${name}</span>
+                <span class="spec-count">${count} practitioner${count !== 1 ? 's' : ''}</span>
+              </div>
+              <div class="spec-bar-track">
+                <div class="spec-bar-fill" style="width:${Math.round(count / maxSpec * 100)}%; background:${specColors[i % specColors.length]}"></div>
+              </div>
+            </div>`).join('')
+        : `<div class="empty"><p>No specialized data available yet.</p></div>`;
+    }
+
+    function calculateTrend(appointments) {
+      // Logic to draw the trend line based on last 8 weeks or months
+      const trendEl = document.getElementById('trendPath');
+      if (!trendEl) return;
+      
+      const counts = new Array(8).fill(0);
+      const now = new Date();
+      appointments.forEach(a => {
+        const date = new Date(a.createdAt || a.date);
+        const weeksAgo = Math.floor((now - date) / (1000 * 60 * 60 * 24 * 7));
+        if (weeksAgo >= 0 && weeksAgo < 8) counts[7 - weeksAgo]++;
+      });
+      
+      const max = Math.max(...counts, 1);
+      const points = counts.map((c, i) => `${i * 140},${55 - (c / max * 50)}`).join(' ');
+      trendEl.setAttribute('points', points);
+    }
+  </script>
+</body>
+</html>
