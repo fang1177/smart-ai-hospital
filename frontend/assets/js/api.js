@@ -3,7 +3,9 @@
  * All HTTP communication goes through this module.
  */
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:5000/api'
+  : '/api';
 
 // ── Token & User Storage ───────────────────────────────────────────────────────
 const getToken  = ()      => localStorage.getItem('sh_token');
@@ -47,7 +49,7 @@ const request = async (method, endpoint, body = null, isFormData = false) => {
     return { ok: res.ok, status: res.status, data: json };
   } catch (err) {
     console.error('API Error:', err);
-    return { ok: false, status: 0, data: { success: false, message: 'Network error — is the server running on port 5000?' } };
+    return { ok: false, status: 0, data: { success: false, message: 'Network error — could not reach the server.' } };
   }
 };
 
