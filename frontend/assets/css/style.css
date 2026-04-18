@@ -1077,8 +1077,8 @@ textarea.form-control { resize:vertical; min-height:80px; }
 }
 
 .landing-nav .nav-links {
-  display: flex !important;
-  align-items: center !important;
+  display: flex;
+  align-items: center;
   gap: 36px;
 }
 .landing-nav .nav-link {
@@ -1453,11 +1453,35 @@ textarea.form-control { resize:vertical; min-height:80px; }
   animation: ripple 1.5s infinite;
 }
 .alert-title { color: #EF4444; font-weight: 900; letter-spacing: 2px; margin-bottom: 15px; }
-.alert-msg { font-size: @keyframes ripple {
+.alert-msg { font-size: 1.1rem; color: #EF4444; }
+
+@keyframes ripple {
   0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
 }
-; height: 100vh; min-height: 700px; 
-  display: flex !important; align-items: center; justify-content: center;
-  overflow: hidden;
+
+/* -----------------------------------------------------------
+   GLOBAL RESPONSIVENESS FIXES
+----------------------------------------------------------- */
+@media (max-width: 900px) {
+  .auth-page { grid-template-columns: 1fr; min-height: auto; }
+  .auth-hero, .auth-form-side { padding: 40px 20px; }
+  .auth-hero { text-align: center; }
+  .auth-logo { flex-direction: column; text-align: center; margin-bottom: 24px; justify-content: center; }
+  .auth-desc { margin: 0 auto 30px; }
+  .auth-tagline { font-size: 2.2rem; }
+  .auth-features { align-items: flex-start; margin: 0 auto; display: inline-flex; }
+  
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .hero-content h1 { font-size: clamp(2.5rem, 8vw, 4.5rem) !important; line-height: 1.1; }
+  .hero-btns { flex-direction: column; width: 100%; gap: 15px; }
+  .hero-btns .btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 768px) {
+  .landing-nav .nav-links { display: none !important; }
+  .about-grid { grid-template-columns: 1fr !important; }
+  .team-header-flex { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .footer-grid { grid-template-columns: 1fr !important; gap: 40px; }
+  .specialty-grid { grid-template-columns: 1fr !important; }
 }
