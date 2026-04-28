@@ -4,6 +4,7 @@ const Bill = require('../models/Bill');
 const Patient = require('../models/Patient');
 const Doctor = require('../models/Doctor');
 const Notification = require('../models/Notification');
+const AuditLog = require('../models/AuditLog');
 const { success, error } = require('../utils/responseHelper');
 
 /**
@@ -22,11 +23,12 @@ const createBill = async (req, res) => {
       return error(res, 'Only doctors or admins can create bills', 403);
     }
 
-    const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
+    const totalAmount = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
     const bill = await Bill.create({
       patientId,
-      doctorId: doctor ? doctor._id : req.body.doctorId,
+      doctorId: doctor ? doctor._id : null,
+      createdBy: req.user._id,
       appointmentId: appointmentId || null,
       title,
       items,
@@ -34,13 +36,13 @@ const createBill = async (req, res) => {
       dueDate,
     });
 
-    // Notify patient
-    const patient = await Patient.findById(patientId).populate('userId');
-    if (patient) {
+    // Notify patient — look up patient's User ID
+    const patient = await Patient.findById(patientId).populate('userId', '_id name');
+    if (patient?.userId) {
       await Notification.create({
         userId: patient.userId._id,
-        message: `A new bill "${title}" for ₹${totalAmount} has been generated. Due by ${new Date(dueDate).toLocaleDateString()}.`,
-        type: 'record',
+        message: `💳 New bill "${title}" of ₹${totalAmount} has been raised. Due: ${new Date(dueDate).toLocaleDateString('en-IN')}.`,
+        type: 'bill',
       });
     }
 
@@ -69,6 +71,23 @@ const getMyBills = async (req, res) => {
 };
 
 /**
+ * ─── GET /api/bills ── Admin/Doctor Only ──────────────────────────────────────
+ */
+const getAllBills = async (req, res) => {
+  try {
+    const bills = await Bill.find()
+      .populate({ path: 'patientId', populate: { path: 'userId', select: 'name email' } })
+      .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name' } })
+      .populate('createdBy', 'name role')
+      .sort({ createdAt: -1 });
+
+    return success(res, bills, 'All bills fetched successfully');
+  } catch (err) {
+    return error(res, err.message, 500);
+  }
+};
+
+/**
  * ─── POST /api/bills/:id/pay ── Patient Only ──────────────────────────────────
  * Creates a Razorpay Order
  */
@@ -78,18 +97,31 @@ const createRazorpayOrder = async (req, res) => {
     if (!bill) return error(res, 'Bill not found', 404);
     if (bill.status === 'paid') return error(res, 'Bill already paid', 400);
 
+    const isPlaceholder = !process.env.RAZORPAY_KEY_ID || 
+                          process.env.RAZORPAY_KEY_ID === 'your_razorpay_key_id' ||
+                          !process.env.RAZORPAY_KEY_SECRET ||
+                          process.env.RAZORPAY_KEY_SECRET === 'your_razorpay_key_secret';
+
+    if (isPlaceholder) {
+      // Demo mode — mark bill as paid immediately
+      bill.status = 'paid';
+      bill.paidAt = Date.now();
+      bill.razorpayOrderId = 'demo_order_' + Date.now();
+      bill.razorpayPaymentId = 'demo_pay_' + Date.now();
+      await bill.save();
+      return success(res, { isDemo: true, bill }, 'Bill paid in demo mode');
+    }
+
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
-    const options = {
-      amount: bill.totalAmount * 100, // amount in paise
+    const order = await razorpay.orders.create({
+      amount: bill.totalAmount * 100,
       currency: 'INR',
       receipt: `bill_${bill._id}`,
-    };
-
-    const order = await razorpay.orders.create(options);
+    });
     
     bill.razorpayOrderId = order.id;
     await bill.save();
@@ -128,8 +160,25 @@ const verifyPayment = async (req, res) => {
       bill.paidAt = Date.now();
       await bill.save();
 
+      if (req.user) {
+        await AuditLog.create({
+          userId: req.user._id,
+          action: 'Payment Verified',
+          details: `Bill ID: ${bill._id}, Amount: ${bill.totalAmount}`,
+          ipAddress: req.ip || ''
+        });
+      }
+
       return success(res, bill, 'Payment verified and bill updated');
     } else {
+      if (req.user) {
+        await AuditLog.create({
+          userId: req.user._id,
+          action: 'Payment Failed',
+          details: `Invalid signature for Order: ${razorpay_order_id}`,
+          ipAddress: req.ip || ''
+        });
+      }
       return error(res, 'Invalid payment signature', 400);
     }
   } catch (err) {
@@ -137,4 +186,4 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-module.exports = { createBill, getMyBills, createRazorpayOrder, verifyPayment };
+module.exports = { createBill, getMyBills, getAllBills, createRazorpayOrder, verifyPayment };

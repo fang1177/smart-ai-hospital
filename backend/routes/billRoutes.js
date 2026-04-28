@@ -3,6 +3,7 @@ const router = express.Router();
 const { 
   createBill, 
   getMyBills, 
+  getAllBills,
   createRazorpayOrder, 
   verifyPayment 
 } = require('../controllers/billController');
@@ -10,6 +11,9 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 // GET /api/bills/my — Patient only
 router.get('/my', protect, authorize('patient'), getMyBills);
+
+// GET /api/bills — Admin/Doctor
+router.get('/', protect, authorize('admin', 'doctor'), getAllBills);
 
 // POST /api/bills — Doctor or Admin
 router.post('/', protect, authorize('doctor', 'admin'), createBill);

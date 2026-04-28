@@ -106,19 +106,34 @@
         <div class="welcome-banner">
           <div class="welcome-text">
             <h2>Good day, <span id="welcomeName">—</span>! 👋</h2>
-            <p>Here's your health overview for today.</p>
+            <p id="welcomeSub">Here's your health overview for today.</p>
           </div>
-          <a href="appointments.html" class="btn" style="background:rgba(255,255,255,0.18);color:#FFF;border:1px solid rgba(255,255,255,0.3)">
+          <a href="appointments.html" class="btn patient-only-btn" id="dashBookBtn" style="background:rgba(255,255,255,0.18);color:#FFF;border:1px solid rgba(255,255,255,0.3);display:none;">
             + Book Appointment
           </a>
         </div>
 
         <!-- Content Area -->
 
+        <!-- Emergency SOS Button (For Patients) -->
+        <div class="patient-only hidden" data-role="patient" style="margin-bottom: 25px;">
+          <a href="emergency.html" class="glass-card glow-hover" style="display:flex; align-items:center; gap:20px; padding:20px; background:linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%); border: 1.5px solid rgba(239, 68, 68, 0.3);">
+            <div class="sos-icon" style="font-size:2.5rem; animation: pulse-red 2s infinite;">🚨</div>
+            <div>
+              <h3 style="color:#EF4444; margin:0">Emergency SOS</h3>
+              <p style="margin:5px 0 0; opacity:0.8; font-size:0.85rem;">Click here if you need immediate medical assistance.</p>
+            </div>
+            <span class="btn btn-danger btn-sm" style="margin-left:auto">TRIGGER SOS</span>
+          </a>
+        </div>
+
         <!-- Quick Actions -->
         <div class="quick-actions animate-fly-in">
-          <a href="#" class="quick-action glass-card glow-hover hidden admin-only" data-role="admin" onclick="openModal('addUserModal'); return false;">
-            <div class="qa-icon">➕</div><div class="qa-label">Add User</div>
+          <a href="triage.html" class="quick-action glass-card glow-hover">
+            <div class="qa-icon">🤖</div><div class="qa-label">AI Triage</div>
+          </a>
+          <a href="emergency.html" class="quick-action glass-card glow-hover">
+            <div class="qa-icon">🚨</div><div class="qa-label">Emergency</div>
           </a>
           <a href="appointments.html" class="quick-action glass-card glow-hover">
             <div class="qa-icon">🗓️</div><div class="qa-label">Appointments</div>
@@ -129,8 +144,8 @@
           <a href="records.html" class="quick-action glass-card glow-hover">
             <div class="qa-icon">📋</div><div class="qa-label">Health Records</div>
           </a>
-          <a href="voice.html" class="quick-action glass-card glow-hover">
-            <div class="qa-icon">🎙️</div><div class="qa-label">AI Voice Assistant</div>
+          <a href="billing.html" class="quick-action glass-card glow-hover">
+            <div class="qa-icon">💳</div><div class="qa-label">Billing</div>
           </a>
         </div>
 

@@ -103,78 +103,59 @@
             <div class="kpi-val" id="kpiPatients">0</div>
             <div class="kpi-lbl">Total Patients</div>
           </div>
-          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#8B5CF6">
-            <div class="kpi-emoji">👨‍⚕️</div>
-            <div class="kpi-val" id="kpiDoctors">0</div>
-            <div class="kpi-lbl">Active Doctors</div>
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#EF4444">
+            <div class="kpi-emoji">🚨</div>
+            <div class="kpi-val" id="kpiEmergencies">0</div>
+            <div class="kpi-lbl">Total Emergencies</div>
+          </div>
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#10B981">
+            <div class="kpi-emoji">💰</div>
+            <div class="kpi-val" id="kpiRevenue">0</div>
+            <div class="kpi-lbl">Monthly Revenue</div>
           </div>
           <div class="kpi-card glass-card glow-hover" style="--kpi-color:#0EA5E9">
+            <div class="kpi-emoji">🛏️</div>
+            <div class="kpi-val" id="kpiBeds">0%</div>
+            <div class="kpi-lbl">Bed Occupancy</div>
+          </div>
+          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#F59E0B">
             <div class="kpi-emoji">📅</div>
             <div class="kpi-val" id="kpiApts">0</div>
             <div class="kpi-lbl">Appointments</div>
-          </div>
-          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#10B981">
-            <div class="kpi-emoji">✅</div>
-            <div class="kpi-val" id="kpiCompleted">0</div>
-            <div class="kpi-lbl">Completed</div>
-          </div>
-          <div class="kpi-card glass-card glow-hover" style="--kpi-color:#F59E0B">
-            <div class="kpi-emoji">⏳</div>
-            <div class="kpi-val" id="kpiPending">0</div>
-            <div class="kpi-lbl">Pending Review</div>
           </div>
         </div>
 
         <!-- ── CHARTS GRID ────────────────────────────── -->
         <div class="analytics-grid animate-fly-in">
 
-          <!-- Bar Chart: appointments per month -->
-          <div class="chart-card glass-card">
-            <div class="chart-title">📈 Appointments (6 Months)</div>
-            <div class="bar-chart" id="barChart">
+          <!-- Revenue Trends -->
+          <div class="chart-card span-2 glass-card">
+            <div class="chart-title">💰 Revenue Trends (Last 6 Months)</div>
+            <div class="bar-chart" id="revenueChart" style="height: 200px;">
               <div class="spinner"></div>
             </div>
           </div>
 
-          <!-- SVG Donut: appointment status -->
+          <!-- Bed Status Donut -->
           <div class="chart-card glass-card">
-            <div class="chart-title">📊 Appointment Status</div>
-            <div class="donut-wrap">
-              <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
-                <circle cx="70" cy="70" r="54" fill="none" stroke="var(--border-light)" stroke-width="20"/>
-                <circle id="ringCompleted" cx="70" cy="70" r="54" fill="none" stroke="#2563EB" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
-                <circle id="ringConfirmed" cx="70" cy="70" r="54" fill="none" stroke="#10B981" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
-                <circle id="ringPending" cx="70" cy="70" r="54" fill="none" stroke="#F59E0B" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
-                <circle id="ringCancelled" cx="70" cy="70" r="54" fill="none" stroke="#EF4444" stroke-width="20" stroke-dasharray="0 339.3" transform="rotate(-90 70 70)" class="donut-ring"/>
-                <text x="70" y="65" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text)" id="donutTotal">0</text>
-                <text x="70" y="82" text-anchor="middle" font-size="11" fill="var(--text-muted)">Total</text>
-              </svg>
-              <div class="donut-legend">
-                <div class="legend-row">
-                  <div class="legend-dot" style="background:#2563EB"></div>
-                  <span class="legend-label">Completed</span>
-                  <span class="legend-val" id="lgComp">0</span>
-                  <span class="legend-pct" id="lgCompPct"></span>
-                </div>
-                <div class="legend-row">
-                  <div class="legend-dot" style="background:#10B981"></div>
-                  <span class="legend-label">Confirmed</span>
-                  <span class="legend-val" id="lgConf">0</span>
-                  <span class="legend-pct" id="lgConfPct"></span>
-                </div>
-                <div class="legend-row">
-                  <div class="legend-dot" style="background:#F59E0B"></div>
-                  <span class="legend-label">Pending</span>
-                  <span class="legend-val" id="lgPend">0</span>
-                  <span class="legend-pct" id="lgPendPct"></span>
-                </div>
-              </div>
+            <div class="chart-title">🛏️ Bed Availability</div>
+            <div class="donut-wrap" id="bedDonutWrap">
+              <!-- Content loaded via JS -->
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- Emergency Activity -->
+          <div class="chart-card glass-card">
+            <div class="chart-title">🚨 Emergency Trends</div>
+            <div class="spec-list" id="emergencySummary">
+              <div class="spinner"></div>
             </div>
           </div>
 
           <div class="chart-card span-2 glass-card">
-            <div class="chart-title">🩺 Staff Expertise Distribution</div>
-            <div class="spec-list" id="specList">
+            <div class="chart-title">🩺 Staff Performance (Appointments)</div>
+            <div class="spec-list" id="docPerformance">
               <div class="spinner"></div>
             </div>
           </div>
@@ -259,107 +240,100 @@
     }
 
     async function loadAnalytics() {
-      const [patRes, aptRes, docRes] = await Promise.all([
+      const [patRes, aptRes, docRes, bedRes, emgRes, billRes] = await Promise.all([
         api.get('/patients'),
         api.get('/appointments'),
         api.get('/doctors'),
+        api.get('/beds/stats'),
+        api.get('/emergencies'),
+        api.get('/bills'),
       ]);
 
       const patients     = patRes.ok ? (patRes.data.data || [])  : [];
       const appointments = aptRes.ok ? (aptRes.data.data || [])  : [];
       const doctors      = docRes.ok ? (docRes.data.data || [])  : [];
+      const bedStats     = bedRes.ok ? bedRes.data.data : { total: 0, available: 0, occupied: 0 };
+      const emergencies  = emgRes.ok ? (emgRes.data.data || [])  : [];
+      const bills        = billRes.ok ? (billRes.data.data || [])  : [];
 
-      const completed = appointments.filter(a => a.status === 'completed').length;
-      const confirmed = appointments.filter(a => a.status === 'confirmed').length;
-      const pending   = appointments.filter(a => a.status === 'pending').length;
-      const cancelled = appointments.filter(a => a.status === 'cancelled').length;
-      const total     = appointments.length;
+      const totalApts = appointments.length;
+      const occupancy = bedStats.total > 0 ? Math.round((bedStats.occupied / bedStats.total) * 100) : 0;
+      
+      // Monthly Revenue
+      const currentMonth = new Date().getMonth();
+      const monthlyRevenue = bills
+        .filter(b => b.status === 'paid' && new Date(b.paidAt).getMonth() === currentMonth)
+        .reduce((sum, b) => sum + b.totalAmount, 0);
 
-      // ── KPIs (Animated Count-up) ──────────────────────────
-      animateNumber('kpiPatients',  patients.length);
-      animateNumber('kpiDoctors',   doctors.length);
-      animateNumber('kpiApts',      total);
-      animateNumber('kpiCompleted', completed);
-      animateNumber('kpiPending',   pending);
+      // ── KPIs ──────────────────────────
+      animateNumber('kpiPatients',    patients.length);
+      animateNumber('kpiEmergencies', emergencies.length);
+      animateNumber('kpiRevenue',     monthlyRevenue);
+      document.getElementById('kpiBeds').textContent = `${occupancy}%`;
+      animateNumber('kpiApts',        totalApts);
 
-      // ── Trendline Calculation ─────────────────────────────
-      calculateTrend(appointments);
-
-      // ── Bar Chart ─────────────────────────────────────────
+      // ── Revenue Chart ─────────────────────────────────────────
       const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const counts = new Array(12).fill(0);
-      appointments.forEach(a => {
-        const date = a.createdAt || a.date;
-        const m = date ? new Date(date).getMonth() : -1;
-        if (m !== -1) counts[m]++;
+      const revCounts = new Array(12).fill(0);
+      bills.filter(b => b.status === 'paid').forEach(b => {
+        const m = new Date(b.paidAt).getMonth();
+        revCounts[m] += b.totalAmount;
       });
       const nowMonth = new Date().getMonth();
-      const barData = [];
+      const revData = [];
       for (let i = 5; i >= 0; i--) {
         const idx = (nowMonth - i + 12) % 12;
-        barData.push({ label: monthNames[idx], val: counts[idx] });
+        revData.push({ label: monthNames[idx], val: revCounts[idx] });
       }
-      const maxVal = Math.max(...barData.map(d => d.val), 1);
-      const barColors = ['bg-grad-blue','bg-grad-green','bg-grad-purple','bg-grad-amber','bg-grad-pink','bg-grad-teal'];
-
-      document.getElementById('barChart').innerHTML = barData.map((d, i) => `
+      const maxRev = Math.max(...revData.map(d => d.val), 1);
+      document.getElementById('revenueChart').innerHTML = revData.map((d, i) => `
         <div class="bar-col">
-          <div class="bar-val">${d.val}</div>
-          <div class="bar ${barColors[i]}" style="height:${Math.max(4, Math.round(d.val / maxVal * 100))}%"></div>
+          <div class="bar-val">₹${d.val}</div>
+          <div class="bar bg-grad-blue" style="height:${Math.max(4, Math.round(d.val / maxRev * 100))}%"></div>
           <div class="bar-label">${d.label}</div>
         </div>`).join('');
 
-      // ── Donut ─────────────────────────────────────────────
-      animateNumber('donutTotal', total);
+      // ── Bed Donut ─────────────────────────────────────────────
+      const bTotal = bedStats.total || 0;
+      document.getElementById('bedDonutWrap').innerHTML = `
+        <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="54" fill="none" stroke="var(--border-light)" stroke-width="20"/>
+          <circle id="ringOcc" cx="70" cy="70" r="54" fill="none" stroke="#EF4444" stroke-width="20" stroke-dasharray="${(bedStats.occupied/bTotal)*CIRC} ${CIRC}" transform="rotate(-90 70 70)" class="donut-ring"/>
+          <text x="70" y="65" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text)">${occupancy}%</text>
+          <text x="70" y="82" text-anchor="middle" font-size="11" fill="var(--text-muted)">Occupied</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-row"><div class="legend-dot" style="background:#EF4444"></div><span class="legend-label">Occupied</span> <span class="legend-val">${bedStats.occupied}</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#2ecc71"></div><span class="legend-label">Available</span> <span class="legend-val">${bedStats.available}</span></div>
+        </div>
+      `;
 
-      if (total > 0) {
-        const segments = [
-          { id: 'ringCompleted', count: completed },
-          { id: 'ringConfirmed', count: confirmed },
-          { id: 'ringPending',   count: pending   },
-          { id: 'ringCancelled', count: cancelled },
-        ];
-        let cumulative = 0;
-        segments.forEach(seg => {
-          const arc    = (seg.count / total) * CIRC;
-          const offset = -cumulative;
-          const el     = document.getElementById(seg.id);
-          if (el) {
-            el.style.strokeDasharray  = `${arc} ${CIRC - arc}`;
-            el.style.strokeDashoffset = offset;
-          }
-          cumulative += arc;
-        });
-      }
+      // ── Emergency Summary ─────────────────────────────
+      const emgTypes = {};
+      emergencies.forEach(e => emgTypes[e.emergencyType] = (emgTypes[e.emergencyType] || 0) + 1);
+      document.getElementById('emergencySummary').innerHTML = Object.entries(emgTypes).map(([type, count]) => `
+        <div class="spec-row">
+          <div class="spec-meta"><span class="spec-name">🚨 ${type}</span><span class="spec-count">${count}</span></div>
+          <div class="spec-bar-track"><div class="spec-bar-fill" style="width:${(count/emergencies.length)*100}%; background:#EF4444"></div></div>
+        </div>
+      `).join('') || '<p>No emergencies recorded.</p>';
 
-      const pctStr = n => total > 0 ? ` (${Math.round(n / total * 100)}%)` : '';
-      document.getElementById('lgComp').textContent = completed;  document.getElementById('lgCompPct').textContent = pctStr(completed);
-      document.getElementById('lgConf').textContent = confirmed;  document.getElementById('lgConfPct').textContent = pctStr(confirmed);
-      document.getElementById('lgPend').textContent = pending;    document.getElementById('lgPendPct').textContent = pctStr(pending);
-
-      // ── Specialty Distribution ─────────────────────────────
-      const specMap = {};
-      doctors.forEach(d => {
-        const s = d.specialization || 'General Medicine';
-        specMap[s] = (specMap[s] || 0) + 1;
+      // ── Doctor Performance ─────────────────────────────
+      const docApts = {};
+      appointments.forEach(a => {
+        const dName = a.doctorId?.userId?.name || 'Unknown';
+        docApts[dName] = (docApts[dName] || 0) + 1;
       });
-      const specEntries = Object.entries(specMap).sort((a, b) => b[1] - a[1]);
-      const maxSpec     = Math.max(...specEntries.map(e => e[1]), 1);
-      const specColors  = ['#2563EB','#10B981','#8B5CF6','#F59E0B','#EC4899','#0D9488'];
-
-      document.getElementById('specList').innerHTML = specEntries.length
-        ? specEntries.map(([name, count], i) => `
-            <div class="spec-row">
-              <div class="spec-meta">
-                <span class="spec-name">🩺 ${name}</span>
-                <span class="spec-count">${count} practitioner${count !== 1 ? 's' : ''}</span>
-              </div>
-              <div class="spec-bar-track">
-                <div class="spec-bar-fill" style="width:${Math.round(count / maxSpec * 100)}%; background:${specColors[i % specColors.length]}"></div>
-              </div>
-            </div>`).join('')
-        : `<div class="empty"><p>No specialized data available yet.</p></div>`;
+      const topDocs = Object.entries(docApts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      const maxDocApt = Math.max(...topDocs.map(e => e[1]), 1);
+      document.getElementById('docPerformance').innerHTML = topDocs.map(([name, count]) => `
+        <div class="spec-row">
+          <div class="spec-meta"><span class="spec-name">👨‍⚕️ ${name}</span><span class="spec-count">${count} apts</span></div>
+          <div class="spec-bar-track"><div class="spec-bar-fill" style="width:${(count/maxDocApt)*100}%; background:var(--primary)"></div></div>
+        </div>
+      `).join('') || '<p>No performance data.</p>';
     }
+
 
     function calculateTrend(appointments) {
       // Logic to draw the trend line based on last 8 weeks or months

@@ -49,11 +49,17 @@
     .landing-hero {
       position: relative; height: 100vh; min-height: 700px; 
       display: flex; align-items: center; justify-content: center;
-      background: #0F172A url('/assets/images/hero.png') no-repeat center center;
-      background-size: cover;
+      background: #0F172A;
       text-align: center; color: #FFF; overflow: hidden;
     }
-    .hero-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(180deg, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.7) 100%); z-index:2; }
+    .hero-bg-zoom {
+      position: absolute; inset: 0;
+      background: #0F172A url('/assets/images/hero.png') no-repeat center center;
+      background-size: cover;
+      animation: slowZoom 25s infinite alternate ease-in-out;
+      z-index: 1;
+    }
+    .hero-overlay { position: absolute; inset:0; background: linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.85) 100%); z-index:2; }
     .hero-content { position: relative; z-index: 10; max-width: 900px; padding: 40px; }
     
     .hero-title { font-size: 5rem; font-weight: 900; line-height: 1.05; margin-bottom: 24px; letter-spacing: -0.04em; }
@@ -89,6 +95,28 @@
       .hero-title { font-size: 3rem; }
       .specialty-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── ADDED ANIMATIONS ── */
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    
+    @keyframes slowZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
+    }
+    
+    .hero-btns a { transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .hero-btns a:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -5px rgba(37,99,235,0.6) !important; }
   </style>
 </head>
 <body class="landing-page">
@@ -113,16 +141,17 @@
 
   <!-- ── HERO SECTION ── -->
   <header class="landing-hero">
+    <div class="hero-bg-zoom"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <div class="section-tag hero-tag">The Future of Care</div>
-      <h1 class="hero-title">Compassionate Care<br/><span class="text-gradient">Powered by AI.</span></h1>
-      <p class="hero-subtitle">
+      <div class="section-tag hero-tag animate-slide-up">The Future of Care</div>
+      <h1 class="hero-title animate-slide-up delay-100">Compassionate Care<br/><span class="text-gradient">Powered by AI.</span></h1>
+      <p class="hero-subtitle animate-slide-up delay-200">
         Smart Hospital bridges the gap between cutting-edge technology and human empathy. 
         Experience a safer, faster, and more intelligent healthcare journey.
       </p>
-      <div class="hero-btns">
-        <a href="pages/login.html" class="btn btn-primary btn-lg">Book an Appointment</a>
+      <div class="hero-btns animate-slide-up delay-300">
+        <a href="pages/login.html" class="btn btn-primary btn-lg" style="box-shadow: 0 10px 25px -5px rgba(37,99,235,0.4);">Book an Appointment</a>
         <a href="#features" class="btn btn-secondary btn-lg btn-outline-white glass-btn">Learn More</a>
       </div>
     </div>

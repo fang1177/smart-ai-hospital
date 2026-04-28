@@ -6,6 +6,8 @@ const { protect } = require('../middleware/authMiddleware');
 // POST /api/ai/chat — all authenticated users
 router.post('/chat', protect, chat);
 
-module.exports = router;
+// POST /api/ai/triage - open to authenticated (or unauthenticated, but let's say authenticated for now)
+const { triage } = require('../controllers/aiController');
+router.post('/triage', protect, triage);
 
 module.exports = router;

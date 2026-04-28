@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     weekday:'long', day:'numeric', month:'long', year:'numeric'
   });
 
+  // Show Book Appointment only for patients
+  if (user?.role === 'patient') {
+    document.getElementById('dashBookBtn').style.display = '';
+    document.getElementById('welcomeSub').textContent = "Here's your health overview for today.";
+  } else if (user?.role === 'admin') {
+    document.getElementById('welcomeSub').textContent = 'Manage hospital operations, staff, and patient care.';
+  } else if (user?.role === 'doctor') {
+    document.getElementById('welcomeSub').textContent = 'Review your appointments and patient records.';
+  }
+
   await Promise.all([loadStats(), loadRecentAppointments()]);
 
   if (user?.role === 'admin') {

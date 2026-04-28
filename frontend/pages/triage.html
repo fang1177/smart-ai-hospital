@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Symptom Triage — Smart Hospital</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=2.0.1" />
+  <style>
+    .triage-container { max-width: 800px; margin: 0 auto; }
+    .triage-card { padding: 30px; }
+    .result-box { margin-top: 25px; padding: 20px; border-radius: 12px; display: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+    .urgency-badge { padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+    .urgency-High { background: #ff4d4d; color: white; }
+    .urgency-Medium { background: #ffa500; color: white; }
+    .urgency-Low { background: #2ecc71; color: white; }
+    .loading-overlay { position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 10; border-radius: 16px; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <div class="layout dashboard-layout">
+    <div class="bg-overlay" style="background-image: url('/assets/images/hospital_hero_bg.png'); background-size: cover; background-position: center; opacity: 0.05;"></div>
+    
+    <!-- Sidebar (Partial) -->
+    <aside class="sidebar" id="sidebar-placeholder"></aside>
+
+    <div class="main-wrapper">
+      <header class="topbar" id="topbar-placeholder"></header>
+
+      <main class="page-content">
+        <div class="triage-container">
+          <div class="welcome-banner" style="margin-bottom: 20px;">
+            <div class="welcome-text">
+              <h2>AI Symptom Triage 🤖</h2>
+              <p>Enter your symptoms for an AI-powered initial assessment.</p>
+            </div>
+          </div>
+
+          <div class="card glass-card triage-card animate-fly-in" style="position: relative;">
+            <div class="loading-overlay" id="triageLoading">
+              <div class="spinner"></div>
+              <p style="margin-top:15px; font-weight:500;">AI is analyzing your symptoms...</p>
+            </div>
+
+            <form id="triageForm">
+              <div class="form-group">
+                <label class="form-label">What symptoms are you experiencing? <span>*</span></label>
+                <textarea id="symptoms" class="form-control" rows="3" placeholder="e.g. Sharp pain in lower abdomen, mild fever, nausea" required></textarea>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Age <span>*</span></label>
+                  <input type="number" id="age" class="form-control" placeholder="Years" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Duration</label>
+                  <input type="text" id="duration" class="form-control" placeholder="e.g. 2 days" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Severity</label>
+                <select id="severity" class="form-control">
+                  <option value="Low">Low (Mild discomfort)</option>
+                  <option value="Medium" selected>Medium (Noticeable pain/issues)</option>
+                  <option value="High">High (Severe/Urgent)</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-full" style="justify-content: center; padding: 12px;">Run AI Assessment</button>
+            </form>
+
+            <div class="result-box animate-scale-in" id="resultBox">
+              <div style="display:flex; justify-content:between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0">Assessment Result</h3>
+                <span id="resConcern" class="urgency-badge"></span>
+              </div>
+              <div class="result-item" style="margin-bottom:15px;">
+                <label style="opacity:0.6; font-size:0.8rem; display:block;">SUGGESTED DEPARTMENT</label>
+                <strong id="resDept" style="font-size:1.1rem; color: var(--primary);"></strong>
+              </div>
+              <div class="result-item" style="margin-bottom:15px;">
+                <label style="opacity:0.6; font-size:0.8rem; display:block;">URGENCY</label>
+                <span id="resUrgency" style="font-weight:600;"></span>
+              </div>
+              <div class="result-item" style="margin-bottom:20px;">
+                <label style="opacity:0.6; font-size:0.8rem; display:block;">RECOMMENDATION</label>
+                <p id="resRec" style="margin:5px 0; line-height:1.5;"></p>
+              </div>
+
+              <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; font-size:0.8rem; border-left:3px solid #ffcc00; margin-bottom:20px;">
+                <strong>Disclaimer:</strong> This is an AI-generated assessment and NOT a final medical diagnosis. If you are experiencing a life-threatening emergency, please call emergency services immediately.
+              </div>
+
+              <div style="display:flex; gap:10px;">
+                <a href="appointments.html" class="btn btn-primary" style="flex:1; justify-content:center;">Book Doctor Now</a>
+                <button class="btn btn-secondary" onclick="location.reload()" style="flex:1; justify-content:center;">Start Over</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../assets/js/api.js?v=2.0.1"></script>
+  <script src="../assets/js/ui.js?v=2.0.1"></script>
+  <script src="../assets/js/triage.js?v=2.0.1"></script>
+</body>
+</html>

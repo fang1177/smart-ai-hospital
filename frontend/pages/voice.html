@@ -85,11 +85,17 @@
           <!-- Voice Hero -->
           <div class="voice-hero">
             <div style="position:relative;z-index:1">
-              <div class="voice-hero-title">🤖 MediAI Assistant</div>
-              <div class="voice-hero-sub">I'm here to guide your healthcare journey — book visits, check availability, or view doctor-prescribed courses.</div>
-              <div class="mic-btn" id="micBtn" onclick="toggleVoice()" style="cursor:pointer;" title="Click to speak">🎤</div>
-              <div class="mic-label" id="micLabel" onclick="toggleVoice()" style="cursor:pointer;">Tap to speak</div>
-              <div class="voice-status" id="voiceStatus">Browser Voice API Ready</div>
+              <div class="voice-hero-title">🤖 MediAI Voice Assistant</div>
+              <div class="voice-hero-sub">Your personal AI receptionist — speak naturally to book appointments, find specialists, or check your records.</div>
+              <div class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Click to speak">🎤</div>
+              <!-- Audio Wave (visible while listening) -->
+              <div class="audio-wave" id="audioWave">
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+              </div>
+              <div class="mic-label" id="micLabel" onclick="toggleVoice()">Tap to speak</div>
+              <div class="voice-status" id="voiceStatus">● Ready — Click mic to start</div>
             </div>
           </div>
 
@@ -139,8 +145,20 @@
     initNotifPanel();
     loadNotifBadge();
 
+    const user = api.getUser();
+    if (user?.role !== 'patient') {
+      document.querySelector('.voice-page').innerHTML = `
+        <div class="empty" style="padding:100px 20px">
+          <div class="empty-ico">🔒</div>
+          <h3>Patient Access Only</h3>
+          <p>The AI Voice Assistant is currently prioritized for patient appointment management.</p>
+          <a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Go to Dashboard</a>
+        </div>`;
+      return;
+    }
+
     // Welcome message
-    addBotMessage("👋 Hello! I'm **MediAI**, your personal healthcare assistant. How can I help you today?\n\nYou can ask me to:\n• 📅 Book an appointment\n• 🔍 Find a doctor by specialty\n• 📋 View your medical records\n• 💊 Get health advice");
+    addBotMessage("👋 Hello! I'm **MediAI**, your personal healthcare receptionist. I can help you **book appointments**, find the right specialist, or check your medical records.\n\nHow can I help you today?");
   });
 
   // ── Voice Recognition (Deepgram) ─────────────────────────────────────────────
@@ -181,12 +199,23 @@
     const btn   = document.getElementById('micBtn');
     const label = document.getElementById('micLabel');
     const status= document.getElementById('voiceStatus');
+    const wave  = document.getElementById('audioWave');
     if (!btn || !label || !status) return;
 
-    btn.classList.toggle('active', active);
-    label.textContent  = active ? '🔴 Recording… tap to stop' : 'Tap to speak';
-    if (!active && !status.textContent.includes('Error')) {
-      status.textContent = 'Powered by MediAI Assistant';
+    if (active) {
+      btn.classList.add('listening');
+      btn.textContent = '🔴';
+      label.textContent = 'Listening… tap to stop';
+      status.textContent = '● Recording in progress';
+      if (wave) wave.classList.add('active');
+    } else {
+      btn.classList.remove('listening');
+      btn.textContent = '🎤';
+      label.textContent = 'Tap to speak';
+      if (!status.textContent.includes('Error')) {
+        status.textContent = '● Ready — Click mic to start';
+      }
+      if (wave) wave.classList.remove('active');
     }
   }
 
@@ -272,12 +301,12 @@
   function appendMessage(role, content, avatar) {
     const container = document.getElementById('chatMessages');
     const div = document.createElement('div');
-    div.className = `msg ${role}`;
+    div.className = `msg-wrap ${role}`;
     const time = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
     div.innerHTML = `
-      <div class="msg-avatar">${avatar}</div>
+      <div class="msg-avatar ${role}">${avatar}</div>
       <div>
-        <div class="msg-bubble">${content}</div>
+        <div class="msg-bubble ${role}">${content}</div>
         <div class="msg-time">${time}</div>
       </div>`;
     container.appendChild(div);
@@ -289,11 +318,15 @@
     const container = document.getElementById('chatMessages');
     const id = 'typing-' + Date.now();
     const div = document.createElement('div');
-    div.className = 'msg bot'; div.id = id;
+    div.className = 'msg-wrap bot'; div.id = id;
     div.innerHTML = `
-      <div class="msg-avatar">🤖</div>
-      <div class="msg-bubble">
-        <div class="typing"><span></span><span></span><span></span></div>
+      <div class="msg-avatar bot">🤖</div>
+      <div class="msg-bubble bot">
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
       </div>`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;

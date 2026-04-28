@@ -23,10 +23,6 @@ const protect = async (req, res, next) => {
   }
 };
 
-/**
- * authorize(...roles) — role guard middleware factory
- * Usage: router.get('/admin-only', protect, authorize('admin'), handler)
- */
 const authorize = (...roles) => (req, res, next) => {
   if (!req.user || !roles.includes(req.user.role)) {
     return error(res, `Access denied — requires role: ${roles.join(' or ')}`, 403);
@@ -34,4 +30,7 @@ const authorize = (...roles) => (req, res, next) => {
   next();
 };
 
-module.exports = { protect, authorize };
+const adminOnly = authorize('admin');
+const adminOrDoctor = authorize('admin', 'doctor');
+
+module.exports = { protect, authorize, adminOnly, adminOrDoctor };

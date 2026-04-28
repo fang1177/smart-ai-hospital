@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bed Management — Smart Hospital</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=2.0.1" />
+  <style>
+    .bed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
+    .bed-card { padding: 15px; text-align: center; transition: 0.3s; cursor: pointer; position: relative; }
+    .bed-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+    .bed-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .bed-number { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
+    .bed-ward { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; }
+    .bed-status { margin-top: 10px; }
+    
+    .bed-available { border-top: 4px solid #2ecc71; }
+    .bed-occupied { border-top: 4px solid #e74c3c; }
+    .bed-maintenance { border-top: 4px solid #f1c40f; }
+
+    .bed-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+    .stat-mini-card { padding: 15px; border-radius: 12px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="layout dashboard-layout">
+    <div class="main-wrapper">
+      <header class="topbar" id="topbar-placeholder"></header>
+      <main class="page-content">
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h2>Bed & Ward Management</h2>
+            <p>Monitor real-time bed occupancy and availability across all wards.</p>
+          </div>
+          <button class="btn btn-primary admin-only" onclick="openModal('addBedModal')" style="display:none" id="addBedBtnTop">+ Add Bed</button>
+        </div>
+
+        <div class="bed-stats-row animate-fly-in">
+          <div class="stat-mini-card glass-card">
+            <div class="text-muted text-sm">Total Beds</div>
+            <div class="h2" id="totalBeds">0</div>
+          </div>
+          <div class="stat-mini-card glass-card" style="border-bottom: 3px solid #2ecc71;">
+            <div class="text-muted text-sm">Available</div>
+            <div class="h2" id="availBeds">0</div>
+          </div>
+          <div class="stat-mini-card glass-card" style="border-bottom: 3px solid #e74c3c;">
+            <div class="text-muted text-sm">Occupied</div>
+            <div class="h2" id="occBeds">0</div>
+          </div>
+          <div class="stat-mini-card glass-card" style="border-bottom: 3px solid #f1c40f;">
+            <div class="text-muted text-sm">Maintenance</div>
+            <div class="h2" id="maintBeds">0</div>
+          </div>
+        </div>
+
+        <div class="card glass-card">
+          <div class="card-header">
+            <div class="card-title">Ward Map</div>
+            <div style="display:flex; gap:10px;">
+              <select id="filterWard" class="form-control form-control-sm" style="width:150px;">
+                <option value="all">All Wards</option>
+                <option value="General">General</option>
+                <option value="ICU">ICU</option>
+                <option value="Private">Private</option>
+              </select>
+            </div>
+          </div>
+          <div class="bed-grid" id="bedGrid">
+            <!-- Loaded via JS -->
+            <div class="spinner"></div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Bed Modal -->
+  <div class="modal-overlay" id="addBedModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add New Bed</div>
+        <button class="modal-close" onclick="closeModal('addBedModal')">✖</button>
+      </div>
+      <div class="modal-body">
+        <form id="addBedForm">
+          <div class="form-group">
+            <label class="form-label">Bed Number</label>
+            <input type="text" id="bedNumber" class="form-control" placeholder="e.g. B-101" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ward Type</label>
+            <select id="wardType" class="form-control">
+              <option value="General">General</option>
+              <option value="ICU">ICU</option>
+              <option value="Private">Private</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-full" style="justify-content:center;">Create Bed</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Bed Modal -->
+  <div class="modal-overlay" id="manageBedModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Manage Bed <span id="manageBedTitle"></span></div>
+        <button class="modal-close" onclick="closeModal('manageBedModal')">✖</button>
+      </div>
+      <div class="modal-body">
+        <form id="manageBedForm">
+          <input type="hidden" id="manageBedId" />
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="manageStatus" class="form-control">
+              <option value="available">Available</option>
+              <option value="occupied">Occupied</option>
+              <option value="maintenance">Maintenance</option>
+            </select>
+          </div>
+          <div class="form-group" id="patientAssignGroup" style="display:none;">
+            <label class="form-label">Assign Patient (User ID)</label>
+            <input type="text" id="managePatientId" class="form-control" placeholder="Paste Patient ID" />
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="submit" class="btn btn-primary" style="flex:2; justify-content:center;">Update Bed</button>
+            <button type="button" class="btn btn-success" id="generateBillBtn" style="display:none; flex:1; justify-content:center;" onclick="generateBedBill()">Raise Bill</button>
+            <button type="button" class="btn btn-danger admin-only" id="deleteBedBtn" style="flex:1; justify-content:center;">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/api.js?v=2.0.1"></script>
+  <script src="../assets/js/ui.js?v=2.0.1"></script>
+  <script src="../assets/js/beds.js?v=2.0.1"></script>
+</body>
+</html>

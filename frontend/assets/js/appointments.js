@@ -28,20 +28,70 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Pre-select doctor if coming from doctors page
-  const preDoc = localStorage.getItem('sh_selected_doctor');
-  const preDocName = localStorage.getItem('sh_selected_doctor_name');
-  if (preDoc && user?.role === 'patient') {
-    openModal('bookModal');
-    const sel = document.getElementById('apptDoctor');
-    if (sel) sel.value = preDoc;
-    localStorage.removeItem('sh_selected_doctor');
-    localStorage.removeItem('sh_selected_doctor_name');
+  // Pre-select doctor if coming from triage or doctors page
+  const fromTriage = new URLSearchParams(window.location.search).get('fromTriage');
+  const pendingBooking = localStorage.getItem('sh_pending_booking');
+
+  if (user?.role === 'patient') {
+    await loadDoctorsForModal();
+    
+    if (fromTriage && pendingBooking) {
+      const { doctorId, doctorName } = JSON.parse(pendingBooking);
+      lockDoctorSelection(doctorId, doctorName);
+      openModal('bookModal');
+    } else {
+      const preDoc = localStorage.getItem('sh_selected_doctor');
+      const preDocName = localStorage.getItem('sh_selected_doctor_name');
+      if (preDoc) {
+        lockDoctorSelection(preDoc, preDocName || 'Selected Doctor');
+        openModal('bookModal');
+      }
+    }
   }
 
   // Book form submit
   document.getElementById('bookForm')?.addEventListener('submit', handleBook);
 });
+
+function lockDoctorSelection(id, name) {
+  const selGroup = document.getElementById('apptDoctor').closest('.form-group');
+  const sel = document.getElementById('apptDoctor');
+  
+  if (sel) sel.value = id;
+  
+  // Create a display box for the locked doctor
+  const displayId = 'lockedDoctorDisplay';
+  if (!document.getElementById(displayId)) {
+    const display = document.createElement('div');
+    display.id = displayId;
+    display.className = 'locked-doc-box glass-card';
+    display.innerHTML = `
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:1.5rem">👨‍⚕️</span>
+        <div style="flex:1">
+          <div style="font-size:0.75rem; color:var(--primary); font-weight:700; text-transform:uppercase;">Booking with</div>
+          <div style="font-weight:700; font-size:1.1rem;">Dr. ${name}</div>
+        </div>
+        <button type="button" class="btn btn-sm btn-secondary" onclick="unlockDoctorSelection()" style="padding:4px 8px; font-size:0.7rem">Change</button>
+      </div>
+    `;
+    selGroup.appendChild(display);
+    sel.classList.add('hidden');
+  }
+}
+
+window.unlockDoctorSelection = () => {
+  const display = document.getElementById('lockedDoctorDisplay');
+  const sel = document.getElementById('apptDoctor');
+  if (display) display.remove();
+  if (sel) {
+    sel.classList.remove('hidden');
+    sel.value = '';
+  }
+  localStorage.removeItem('sh_pending_booking');
+  localStorage.removeItem('sh_selected_doctor');
+  localStorage.removeItem('sh_selected_doctor_name');
+};
 
 async function loadDoctorsForModal() {
   const { ok, data } = await api.get('/doctors');
@@ -122,29 +172,76 @@ function buildActions(appt, role) {
   return btns || `<span class="text-muted text-sm">—</span>`;
 }
 
-// ── Book Appointment ───────────────────────────────────────────────────────────
+// ── Book Appointment (With Payment) ───────────────────────────────────────────
 async function handleBook(e) {
   e.preventDefault();
   const btn = document.querySelector('[form="bookForm"]') || e.target.querySelector('[type=submit]');
   if (btn) btn.disabled = true;
-  if (btn) btn.innerHTML = `<span class="spinner"></span> Booking…`;
+  if (btn) btn.innerHTML = `<span class="spinner"></span> Initiating…`;
 
-  const { ok, data } = await api.post('/appointments', {
+  const { ok, data } = await api.post('/appointments/initiate', {
     doctorId: document.getElementById('apptDoctor').value,
     date:     document.getElementById('apptDate').value,
     time:     document.getElementById('apptTime').value,
     reason:   document.getElementById('apptReason').value,
   });
 
-  if (btn) btn.disabled = false;
-  if (btn) btn.innerHTML = '📅 Book Appointment';
+  if (!ok) { 
+    if (btn) { btn.disabled = false; btn.innerHTML = '📅 Book Appointment'; }
+    showToast('error', 'Booking Failed', data.message); 
+    return; 
+  }
 
-  if (!ok) { showToast('error', 'Booking Failed', data.message); return; }
+  const { orderId, amount, appointmentId, keyId, isDemo } = data.data;
 
-  showToast('success', 'Appointment Booked!', 'Your appointment has been scheduled.');
-  closeModal('bookModal');
-  e.target.reset();
-  await loadAppointments();
+  if (isDemo) {
+    showToast('success', 'Appointment Booked!', 'Demo Mode: Booking successful without real payment.');
+    closeModal('bookModal');
+    e.target.reset();
+    await loadAppointments();
+    if (btn) { btn.disabled = false; btn.innerHTML = '📅 Book Appointment'; }
+    return;
+  }
+
+  const options = {
+    key: keyId,
+    amount: amount * 100,
+    currency: 'INR',
+    name: 'Smart Hospital AI',
+    description: 'Consultation Fee Payment',
+    order_id: orderId,
+    handler: async function (response) {
+      if (btn) btn.innerHTML = `<span class="spinner"></span> Verifying…`;
+      const verifyRes = await api.post('/appointments/verify', {
+        ...response,
+        appointmentId
+      });
+
+      if (verifyRes.ok) {
+        showToast('success', 'Appointment Booked!', 'Payment successful. Doctor will confirm soon.');
+        closeModal('bookModal');
+        e.target.reset();
+        await loadAppointments();
+      } else {
+        showToast('error', 'Payment Verification Failed', verifyRes.data.message);
+      }
+      
+      if (btn) { btn.disabled = false; btn.innerHTML = '📅 Book Appointment'; }
+    },
+    prefill: {
+      name: api.getUser().name,
+      email: api.getUser().email,
+    },
+    theme: { color: '#2563EB' },
+    modal: {
+      ondismiss: function() {
+        if (btn) { btn.disabled = false; btn.innerHTML = '📅 Book Appointment'; }
+      }
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
 }
 
 // ── Update Status ──────────────────────────────────────────────────────────────

@@ -15,6 +15,9 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const billRoutes = require('./routes/billRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
+const bedRoutes = require('./routes/bedRoutes');
+const auditRoutes = require('./routes/auditRoutes');
 const { startReminderService } = require('./services/reminderService');
 
 const app = express();
@@ -43,7 +46,9 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/bills', billRoutes);
-
+app.use('/api/emergencies', emergencyRoutes);
+app.use('/api/beds', bedRoutes);
+app.use('/api/audit', auditRoutes);
 // ── Health Check ──────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({
@@ -57,6 +62,9 @@ app.get('/', (req, res) => {
       '/api/records',
       '/api/notifications',
       '/api/bills',
+      '/api/emergencies',
+      '/api/beds',
+      '/api/audit',
     ],
   });
 });

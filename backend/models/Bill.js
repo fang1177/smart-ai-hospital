@@ -10,7 +10,12 @@ const billSchema = new mongoose.Schema(
     doctorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Doctor',
-      required: true,
+      default: null,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
     },
     appointmentId: {
       type: mongoose.Schema.Types.ObjectId,

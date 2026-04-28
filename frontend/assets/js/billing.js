@@ -1,4 +1,4 @@
-﻿/**
+/**
  * billing.js â€” Handling invoices and Razorpay payments
  */
 
@@ -28,6 +28,37 @@ document.addEventListener('DOMContentLoaded', () => {
       loadBills(btn.dataset.filter);
     });
   });
+
+  // Handle auto-open create bill from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('createBill') === 'true' && ['admin', 'doctor'].includes(user?.role)) {
+    setTimeout(() => {
+      const pId = urlParams.get('patientId');
+      if (pId) {
+        // Try to match patient ID in the dropdown. The value might be Patient _id not User _id.
+        // We will just try setting it.
+        const sel = document.getElementById('billPatient');
+        if (sel) sel.value = pId;
+      }
+      
+      const title = urlParams.get('title');
+      if (title) document.getElementById('billTitle').value = title;
+      
+      const desc = urlParams.get('desc');
+      if (desc) {
+        const descInputs = document.querySelectorAll('.item-desc');
+        if (descInputs.length > 0) descInputs[0].value = desc;
+      }
+      
+      // Default due date to today
+      document.getElementById('billDueDate').value = new Date().toISOString().split('T')[0];
+      
+      openModal('createBillModal');
+      
+      // Clean up URL without reloading
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }, 1000); // Wait for patients to load
+  }
 });
 
 async function loadBills(filter = 'all') {
@@ -38,7 +69,10 @@ async function loadBills(filter = 'all') {
   list.innerHTML = '<div class="spinner"></div>';
   empty.classList.add('hidden');
 
-  const { ok, data } = await api.get('/bills/my');
+  const user = api.getUser();
+  const endpoint = ['admin', 'doctor'].includes(user?.role) ? '/bills' : '/bills/my';
+
+  const { ok, data } = await api.get(endpoint);
   if (!ok) {
     list.innerHTML = '';
     showToast('error', 'Error', 'Failed to load bills');
@@ -64,9 +98,14 @@ async function loadBills(filter = 'all') {
         </div>
         <div class="bill-main-info">
           <div class="bill-title">${b.title}</div>
-          <div class="bill-meta">Issued by Dr. ${b.doctorId?.userId?.name || 'Admin'} â€¢ ${formatDate(b.createdAt)}</div>
+          <div class="bill-meta">
+            ${['admin', 'doctor'].includes(user?.role) 
+              ? `Patient: <strong>${b.patientId?.userId?.name || b.patientId?.name || 'Unknown'}</strong>` 
+              : `Issued by ${b.doctorId?.userId?.name ? 'Dr. ' + b.doctorId.userId.name : (b.createdBy?.name || 'Admin')}`} 
+            &bull; ${formatDate(b.createdAt)}
+          </div>
         </div>
-        <div class="bill-total">â‚¹${b.totalAmount}</div>
+        <div class="bill-total">&#8377;${b.totalAmount}</div>
       </div>
       <div class="bill-body">
         <div class="bill-items-summary">
@@ -83,11 +122,11 @@ async function loadBills(filter = 'all') {
           <span class="badge badge-${b.status}">${b.status.toUpperCase()}</span>
           ${b.status === 'pending' ? `<span class="due-tag">Due by ${formatDate(b.dueDate)}</span>` : ''}
         </div>
-        ${b.status === 'pending' ? `
+        ${b.status === 'pending' && user?.role === 'patient' ? `
           <button class="btn btn-primary btn-sm" onclick="payBill('${b._id}')">Pay Now</button>
-        ` : `
+        ` : b.status === 'paid' ? `
           <div class="paid-at">Paid on ${formatDate(b.paidAt)}</div>
-        `}
+        ` : `<div class="text-muted text-sm italic">Awaiting Payment</div>`}
       </div>
     </div>
   `).join('');
@@ -96,11 +135,20 @@ async function loadBills(filter = 'all') {
 async function payBill(billId) {
   const res = await api.post(`/bills/${billId}/pay`);
   if (!res.ok) {
-    showToast('error', 'Payment Failed', res.data.message);
+    showToast('error', 'Payment Failed', res.data?.message || 'Could not process payment');
     return;
   }
 
-  const { orderId, amount, keyId } = res.data.data;
+  const responseData = res.data.data;
+
+  // Demo Mode — no Razorpay popup needed
+  if (responseData?.isDemo) {
+    showToast('success', '✅ Payment Successful (Demo)', 'Your bill has been marked as paid in demo mode.');
+    loadBills();
+    return;
+  }
+
+  const { orderId, amount, keyId } = responseData;
 
   const options = {
     key: keyId,
@@ -112,15 +160,15 @@ async function payBill(billId) {
     handler: async function (response) {
       const verifyRes = await api.post('/bills/verify', response);
       if (verifyRes.ok) {
-        showToast('success', 'Payment Successful', 'Your bill has been updated.');
+        showToast('success', 'Payment Successful', 'Your bill has been marked as paid.');
         loadBills();
       } else {
-        showToast('error', 'Verification Failed', verifyRes.data.message);
+        showToast('error', 'Verification Failed', verifyRes.data?.message);
       }
     },
     prefill: {
-      name: api.getUser().name,
-      email: api.getUser().email,
+      name: api.getUser()?.name || '',
+      email: api.getUser()?.email || '',
     },
     theme: { color: '#2563EB' }
   };

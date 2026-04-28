@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Doctor = require('../models/Doctor');
 const Patient = require('../models/Patient');
 const Notification = require('../models/Notification');
+const AuditLog = require('../models/AuditLog');
 const jwt = require('jsonwebtoken');
 const { success, error } = require('../utils/responseHelper');
 
@@ -61,6 +62,14 @@ const register = async (req, res) => {
     });
 
     const token = generateToken(user._id);
+    
+    await AuditLog.create({
+      userId: user._id,
+      action: 'User Registered',
+      details: `Role: ${user.role}`,
+      ipAddress: req.ip || ''
+    });
+
     return success(
       res,
       { token, user: { id: user._id, name, email, role: user.role } },
@@ -82,16 +91,44 @@ const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-    if (!user) return error(res, 'Invalid credentials', 401);
+    if (!user) {
+      await AuditLog.create({
+        action: 'Failed Login',
+        details: `Email: ${email} (User not found)`,
+        ipAddress: req.ip || ''
+      });
+      return error(res, 'Invalid credentials', 401);
+    }
 
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) return error(res, 'Invalid credentials', 401);
+    if (!isMatch) {
+      await AuditLog.create({
+        userId: user._id,
+        action: 'Failed Login',
+        details: 'Incorrect password',
+        ipAddress: req.ip || ''
+      });
+      return error(res, 'Invalid credentials', 401);
+    }
 
     if (user.role === 'doctor' && !user.isApproved) {
+      await AuditLog.create({
+        userId: user._id,
+        action: 'Login Attempt Blocked',
+        details: 'Doctor pending approval',
+        ipAddress: req.ip || ''
+      });
       return error(res, 'Your doctor account is pending admin approval', 403);
     }
 
     const token = generateToken(user._id);
+
+    await AuditLog.create({
+      userId: user._id,
+      action: 'User Login',
+      details: `Role: ${user.role}`,
+      ipAddress: req.ip || ''
+    });
     return success(
       res,
       { token, user: { id: user._id, name: user.name, email: user.email, role: user.role } },

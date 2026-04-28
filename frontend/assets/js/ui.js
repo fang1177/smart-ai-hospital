@@ -82,6 +82,49 @@ function initSidebar() {
   const user = api.getUser();
   if (!user) return;
 
+  // Role-based hard removal (Early)
+  document.body.classList.add(`role-${user.role}`);
+
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    // We can inject/update the nav items dynamically here to keep them consistent
+    const nav = sidebar.querySelector('.sidebar-nav');
+    if (nav) {
+      const currentPath = window.location.pathname.split('/').pop() || 'dashboard.html';
+      
+      const navItems = [
+        { href: 'dashboard.html', icon: '📊', label: 'Dashboard', roles: ['admin', 'doctor', 'patient'] },
+        { href: 'triage.html', icon: '🤖', label: 'AI Triage', roles: ['patient'] },
+        { href: 'emergency.html', icon: '🚨', label: 'Emergency SOS', roles: ['admin', 'doctor', 'patient'] },
+        { href: 'doctors.html', icon: '👨‍⚕️', label: 'Doctors', roles: ['admin', 'doctor', 'patient'] },
+        { href: 'appointments.html', icon: '📅', label: 'Appointments', roles: ['admin', 'doctor', 'patient'] },
+        { href: 'records.html', icon: '📋', label: 'Medical Records', roles: ['admin', 'doctor', 'patient'] },
+        { href: 'billing.html', icon: '💳', label: 'Billing', roles: ['admin', 'doctor', 'patient'] },
+        
+        { section: 'Staff Only', roles: ['admin', 'doctor'] },
+        { href: 'beds.html', icon: '🛏️', label: 'Bed Availability', roles: ['admin', 'doctor', 'patient'] },
+        { href: 'patients.html', icon: '👥', label: 'Patients', roles: ['admin', 'doctor'] },
+        
+        { section: 'System', roles: ['admin'] },
+        { href: 'users.html', icon: '🛡️', label: 'Manage Users', roles: ['admin'] },
+        { href: 'analytics.html', icon: '📈', label: 'Analytics', roles: ['admin'] },
+        { href: 'auditlogs.html', icon: '📜', label: 'Audit Logs', roles: ['admin'] },
+        
+        { section: 'AI', roles: ['patient'] },
+        { href: 'voice.html', icon: '🎙️', label: 'Voice AI', roles: ['patient'] },
+      ];
+
+      nav.innerHTML = navItems.map(item => {
+        if (item.section) {
+          return item.roles.includes(user.role) ? `<div class="nav-section">${item.section}</div>` : '';
+        }
+        if (!item.roles.includes(user.role)) return '';
+        const isActive = currentPath === item.href ? 'active' : '';
+        return `<a href="${item.href}" class="nav-item ${isActive}"><span class="nav-icon">${item.icon}</span> ${item.label}</a>`;
+      }).join('');
+    }
+  }
+
   // Role pill
   const rolePill = document.getElementById('sidebarRole');
   if (rolePill) rolePill.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
@@ -95,33 +138,6 @@ function initSidebar() {
   document.querySelectorAll('.sidebar-user-name').forEach(el => el.textContent = user.name || '');
   document.querySelectorAll('.sidebar-user-role').forEach(el => el.textContent = user.role);
   document.querySelectorAll('.topbar-user-name').forEach(el => el.textContent = user.name || '');
-
-  // Role-based CSS class on body for robust hiding
-  document.body.classList.add(`role-${user.role}`);
-
-  // ROLE-BASED HARD REMOVAL (Fail-safe)
-  if (user.role === 'patient') {
-      document.querySelectorAll('.staff-only, .admin-only, .doctor-only').forEach(el => el.remove());
-  } else if (user.role === 'doctor') {
-      document.querySelectorAll('.admin-only').forEach(el => el.remove());
-  }
-
-  // Role-based nav visibility (Legacy data-role check)
-  document.querySelectorAll('[data-role]').forEach(el => {
-    const allowed = el.dataset.role.split(',');
-    if (!allowed.includes(user.role)) {
-      el.remove();
-    }
-  });
-
-  // Active nav item
-  const path = window.location.pathname;
-  document.querySelectorAll('.nav-item').forEach(item => {
-    const href = item.getAttribute('href') || '';
-    if (path.includes(href.split('/').pop().replace('.html',''))) {
-      item.classList.add('active');
-    }
-  });
 
   // Logout
   document.querySelectorAll('.logout-btn').forEach(btn => {
@@ -148,13 +164,74 @@ function initSidebar() {
       profileDropdown.classList.toggle('show');
     });
     
-    // Close dropdown on outside click
     document.addEventListener('click', (e) => {
       if (!userProfileBtn.contains(e.target)) {
         profileDropdown.classList.remove('show');
       }
     });
   }
+
+  initDarkMode();
+  initLanguage();
+}
+
+// ── Dark Mode ───────────────────────────────────────────────────────────────
+function initDarkMode() {
+  const isDark = localStorage.getItem('sh_theme') === 'dark';
+  if (isDark) document.body.classList.add('dark-mode');
+
+  // Add toggle to topbar if it doesn't exist
+  const topbarActions = document.querySelector('.topbar-actions');
+  if (topbarActions && !document.getElementById('themeToggle')) {
+    const btn = document.createElement('button');
+    btn.id = 'themeToggle';
+    btn.className = 'topbar-icon-btn';
+    btn.title = 'Toggle Dark Mode';
+    btn.innerHTML = isDark ? '🌙' : '☀️';
+    btn.onclick = () => {
+      const isNowDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('sh_theme', isNowDark ? 'dark' : 'light');
+      btn.innerHTML = isNowDark ? '🌙' : '☀️';
+    };
+    topbarActions.prepend(btn);
+  }
+}
+
+// ── Multi-Language Support ──────────────────────────────────────────────────
+const translations = {
+  en: { dashboard: 'Dashboard', appointments: 'Appointments', doctors: 'Doctors', triage: 'AI Triage', logout: 'Logout', emergency: 'Emergency' },
+  te: { dashboard: 'డాష్‌బోర్డ్', appointments: 'నియామకాలు', doctors: 'వైద్యులు', triage: 'AI ట్రియేజ్', logout: 'లాగ్ అవుట్', emergency: 'అత్యవసర' },
+  hi: { dashboard: 'डैशबोर्ड', appointments: 'नियुक्ति', doctors: 'डॉक्टर', triage: 'एआई ट्राइएज', logout: 'लॉग आउट', emergency: 'आपातकालीन' }
+};
+
+function initLanguage() {
+  const lang = localStorage.getItem('sh_lang') || 'en';
+  applyLanguage(lang);
+
+  const topbarActions = document.querySelector('.topbar-actions');
+  if (topbarActions && !document.getElementById('langSelector')) {
+    const wrap = document.createElement('div');
+    wrap.id = 'langSelector';
+    wrap.style = 'margin-right: 10px;';
+    wrap.innerHTML = `
+      <select class="form-control form-control-sm" style="width:70px; padding:2px 5px;" onchange="applyLanguage(this.value); localStorage.setItem('sh_lang', this.value);">
+        <option value="en" ${lang === 'en' ? 'selected' : ''}>EN</option>
+        <option value="te" ${lang === 'te' ? 'selected' : ''}>TE</option>
+        <option value="hi" ${lang === 'hi' ? 'selected' : ''}>HI</option>
+      </select>
+    `;
+    topbarActions.prepend(wrap);
+  }
+}
+
+function applyLanguage(lang) {
+  const t = translations[lang];
+  if (!t) return;
+  // This is a basic implementation, in a real app we'd use data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (t[key]) el.textContent = t[key];
+  });
 }
 
 // ── Notification badge updater ─────────────────────────────────────────────────
@@ -236,7 +313,7 @@ async function markNotifRead(id, el) {
 let notifInterval;
 let lastUnreadCount = -1;
 
-function startNotifPolling(intervalMs = 30000) {
+function startNotifPolling(intervalMs = 15000) {
   if (notifInterval) clearInterval(notifInterval);
   
   // Initial load
@@ -251,7 +328,11 @@ function startNotifPolling(intervalMs = 30000) {
       
       // Check for high-intensity alerts
       const highAlert = notifications.find(n => n.isHighIntensity && !n.read);
-      if (highAlert) {
+      const sosAlert = notifications.find(n => n.message.includes('🚨 EMERGENCY SOS') && !n.read);
+
+      if (sosAlert && ['admin', 'doctor'].includes(api.getUser().role)) {
+        showEmergencyAlert(sosAlert);
+      } else if (highAlert) {
         showMedicalAlert(highAlert);
       } else if (lastUnreadCount !== -1 && unreadCount > lastUnreadCount) {
         showToast('info', 'New Notification', 'You have received a new update.');
@@ -296,6 +377,48 @@ function showMedicalAlert(notif) {
   audio.play().catch(e => console.warn('Audio play failed:', e));
   overlay.dataset.audioPlaying = 'true';
   window._alertAudio = audio;
+}
+
+// ── Emergency SOS Alert (Staff Only) ─────────────────────────────────────────
+function showEmergencyAlert(notif) {
+  if (document.getElementById('emergencyAlertOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'emergencyAlertOverlay';
+  overlay.className = 'medical-alert-overlay active';
+  overlay.style.zIndex = '9999';
+  overlay.innerHTML = `
+    <div class="medical-alert-card animate-scale-in" style="border: 4px solid #EF4444; background: rgba(0,0,0,0.95);">
+      <div class="alert-icon-wrap">
+        <div class="alert-icon" style="background:#EF4444">🚨</div>
+        <div class="alert-pulse" style="background:#EF4444"></div>
+      </div>
+      <h2 class="alert-title" style="color:#EF4444">🚨 EMERGENCY SOS 🚨</h2>
+      <p class="alert-msg" style="color:#FFF; font-weight:700">${notif.message}</p>
+      <div class="alert-btns">
+        <a href="emergency.html" class="btn btn-danger btn-lg" onclick="handleEmergencyAction('${notif._id}')">🚑 DISPATCH AMBULANCE</a>
+        <button class="btn btn-secondary btn-lg" onclick="handleEmergencyAction('${notif._id}', 'close')">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-emergency-siren-1582.mp3');
+  audio.loop = true;
+  audio.play().catch(e => console.warn('Audio play failed:', e));
+  window._emergencyAudio = audio;
+}
+
+async function handleEmergencyAction(notifId, action) {
+  const overlay = document.getElementById('emergencyAlertOverlay');
+  if (window._emergencyAudio) {
+    window._emergencyAudio.pause();
+    window._emergencyAudio = null;
+  }
+  if (action !== 'close') {
+    await api.patch(`/notifications/${notifId}/read`);
+  }
+  overlay?.remove();
 }
 
 async function handleAlertAction(notifId, action) {
@@ -371,3 +494,5 @@ window.startNotifPolling = startNotifPolling;
 window.animateNumber = animateNumber;
 window.showMedicalAlert = showMedicalAlert;
 window.handleAlertAction = handleAlertAction;
+window.showEmergencyAlert = showEmergencyAlert;
+window.handleEmergencyAction = handleEmergencyAction;

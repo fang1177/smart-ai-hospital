@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Logs — Smart Hospital</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=2.0.1" />
+</head>
+<body>
+  <div class="layout dashboard-layout">
+    <div class="main-wrapper">
+      <header class="topbar" id="topbar-placeholder"></header>
+      <main class="page-content">
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h2>System Audit Logs</h2>
+            <p>Track all critical actions and security events.</p>
+          </div>
+        </div>
+
+        <div class="card glass-card animate-fly-in">
+          <div class="card-header">
+            <div class="card-title">Activity History</div>
+            <button class="btn btn-sm btn-secondary" onclick="loadLogs()">🔄 Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th><th>User</th><th>Action</th><th>Details</th><th>IP Address</th>
+                </tr>
+              </thead>
+              <tbody id="logsTable">
+                <tr><td colspan="5"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../assets/js/api.js?v=2.0.1"></script>
+  <script src="../assets/js/ui.js?v=2.0.1"></script>
+  <script src="../assets/js/audit.js?v=2.0.1"></script>
+</body>
+</html>
