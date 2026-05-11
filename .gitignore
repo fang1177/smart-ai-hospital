@@ -6,3 +6,4 @@ __pycache__/
 backend/uploads/
 *.pdf
 .pytest_cache/
+backend/mongodb_data/
