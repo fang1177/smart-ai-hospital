@@ -8,7 +8,8 @@
  *   node migrate.js "mongodb+srv://admin:pass@cluster0.abcde.mongodb.net/smarthospital?retryWrites=true&w=majority"
  */
 
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
+const { MongoClient } = mongoose.mongo;
 
 const LOCAL_URI = process.env.LOCAL_MONGO_URI || 'mongodb://127.0.0.1:27017/smarthospital';
 const TARGET_URI = process.argv[2] || process.env.MONGO_URI;
