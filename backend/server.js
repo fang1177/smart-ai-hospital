@@ -33,8 +33,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Serve uploaded files statically ──────────────────────────────────────────
+// ── Serve static files ────────────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
@@ -49,8 +50,8 @@ app.use('/api/bills', billRoutes);
 app.use('/api/emergencies', emergencyRoutes);
 app.use('/api/beds', bedRoutes);
 app.use('/api/audit', auditRoutes);
-// ── Health Check ──────────────────────────────────────────────────────────────
-app.get('/', (req, res) => {
+// ── Root / Status ─────────────────────────────────────────────────────────────
+app.get('/api', (req, res) => {
   res.json({
     status: '✅ SmartHospital API v1.0 Running',
     timestamp: new Date().toISOString(),
@@ -67,6 +68,10 @@ app.get('/', (req, res) => {
       '/api/audit',
     ],
   });
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // ── 404 Handler ───────────────────────────────────────────────────────────────

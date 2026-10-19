@@ -2,28 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/assets/(.*)",
-      "destination": "/frontend/assets/$1"
-    },
-    {
-      "source": "/pages/(.*)",
-      "destination": "/frontend/pages/$1"
-    },
-    {
-      "source": "/manifest.json",
-      "destination": "/frontend/manifest.json"
-    },
-    {
-      "source": "/sw.js",
-      "destination": "/frontend/sw.js"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/frontend/index.html"
+      "destination": "/api/index.js"
     }
   ]
 }
