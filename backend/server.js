@@ -23,15 +23,27 @@ const { startReminderService } = require('./services/reminderService');
 const app = express();
 
 // Connect to MongoDB
-connectDB().then(() => {
-  // Start background services
-  startReminderService();
-});
+if (process.env.VERCEL !== '1') {
+  connectDB().then(() => {
+    startReminderService();
+  });
+}
 
 // ── Core Middleware ───────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Ensure DB connection in serverless environment
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection error in request:', err);
+    res.status(500).json({ success: false, message: 'Database connection error' });
+  }
+});
 
 // ── Serve static files ────────────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
