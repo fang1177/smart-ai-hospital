@@ -1,9 +1,12 @@
 node_modules/
 .env
+.env.*
+*.env
+!.env.example
 .vscode/
 venv/
 __pycache__/
-backend/uploads/
-*.pdf
-.pytest_cache/
+backend/uploads/*.pdf
 backend/mongodb_data/
+.pytest_cache/
+*.mongodb.js

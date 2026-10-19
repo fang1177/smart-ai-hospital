@@ -88,9 +88,10 @@ function renderRecords(records) {
   }
 
   grid.innerHTML = records.map(r => {
-    const doctor   = r.doctorId?.userId?.name ? `Dr. ${r.doctorId.userId.name}` : 'System';
-    const fileUrl  = r.fileUrl?.startsWith('/') ? `http://localhost:5000${r.fileUrl}` : r.fileUrl;
-    const bgcolor  = typeBgs[r.type]   || '#F1F5F9';
+    const apiOrigin = window.API_BASE_URL ? window.API_BASE_URL.replace(/\/api\/?$/, '') : '';
+    const fileUrl   = r.fileUrl?.startsWith('/') 
+      ? (apiOrigin ? `${apiOrigin}${r.fileUrl}` : r.fileUrl) 
+      : r.fileUrl;
     const color    = typeColors[r.type] || '#64748B';
     const icon     = typeIcons[r.type]  || '📄';
 

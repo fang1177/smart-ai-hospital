@@ -81,10 +81,12 @@ app.use((err, req, res, next) => {
 });
 
 // ── Start Server ──────────────────────────────────────────────────────────────
-if (process.env.NODE_ENV !== 'production') {
+// In serverless environments (like Vercel), the app is exported as a handler.
+// In container or VM environments (like Render, Railway, local), it listens on PORT.
+if (process.env.VERCEL !== '1') {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 }
 
