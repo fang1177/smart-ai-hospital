@@ -93,8 +93,8 @@ app.use((req, res) => {
 
 // ── Global Error Handler ──────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error('💥 Unhandled Error:', err.stack);
-  res.status(500).json({ success: false, message: 'Internal Server Error' });
+  console.error('💥 Unhandled Error:', err.stack || err.message);
+  res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
 // ── Start Server ──────────────────────────────────────────────────────────────
